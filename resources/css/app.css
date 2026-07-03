@@ -1,0 +1,123 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+/* ========================================
+   Attendance Module
+   ======================================== */
+
+/* --- Sticky Table (Desktop) --- */
+.attendance-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background-color: var(--bs-table-bg-state, var(--bs-table-bg-type, var(--bs-table-bg)));
+    box-shadow: inset 0 1px 0 rgba(0,0,0,.05), inset 0 -1px 0 rgba(0,0,0,.1);
+}
+.attendance-table .sticky-roll,
+.attendance-table .sticky-name {
+    position: sticky;
+    z-index: 2;
+    background-color: var(--bs-table-bg-state, var(--bs-table-bg-type, var(--bs-table-bg)));
+}
+.attendance-table thead .sticky-roll,
+.attendance-table thead .sticky-name {
+    z-index: 4;
+}
+.attendance-table .sticky-roll {
+    left: 0;
+    min-width: 90px;
+}
+.attendance-table .sticky-name {
+    left: 90px;
+    min-width: 160px;
+}
+.attendance-table .photo-col {
+    width: 80px;
+}
+.attendance-table .remark-input {
+    min-width: 100px;
+}
+
+/* --- Search --- */
+.attendance-search-input {
+    width: 180px;
+}
+
+/* --- Mobile Cards --- */
+.attendance-card .form-check-input {
+    cursor: pointer;
+}
+.attendance-card .form-check-input:disabled {
+    cursor: not-allowed;
+}
+.attendance-card .form-check-input:checked {
+    border-width: 3px;
+}
+
+/* --- Print --- */
+@media print {
+    @page {
+        margin: 8mm;
+    }
+
+    body {
+        background: #fff !important;
+    }
+
+    .text-bg-dark,
+    .navbar,
+    .alert,
+    .card-header .d-flex.flex-wrap,
+    #attendance_search,
+    label[for="attendance_search"],
+    .swal2-container,
+    .swal2-backdrop-show,
+    .breadcrumb,
+    [title="Print"],
+    [title="Refresh"] {
+        display: none !important;
+    }
+
+    .container-fluid {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .card {
+        box-shadow: none !important;
+        border: 1px solid #dee2e6 !important;
+        break-inside: avoid;
+    }
+
+    .card-header {
+        background: #f8f9fa !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .card-header .d-flex.align-items-center.gap-2 .btn,
+    .card-header .d-flex.gap-1.flex-wrap {
+        display: none !important;
+    }
+
+    .attendance-table {
+        font-size: 9pt;
+    }
+
+    .attendance-table th,
+    .attendance-table td {
+        padding: 4px 6px !important;
+    }
+
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    .d-md-none {
+        display: none !important;
+    }
+
+    .d-none.d-md-block {
+        display: block !important;
+    }
+}
