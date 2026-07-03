@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\ShiftController;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\RoutineController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\AttendanceController;
@@ -288,6 +289,29 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::post('/teachers/{teacher}/departments', [TeacherController::class, 'assignDepartments'])
         ->name('teachers.departments')
         ->middleware('permission:teacher-edit');
+
+    // Routines
+    Route::get('/routines', [RoutineController::class, 'index'])
+        ->name('routines.index')
+        ->middleware('permission:routine-list');
+    Route::post('/routines', [RoutineController::class, 'store'])
+        ->name('routines.store')
+        ->middleware('permission:routine-create');
+    Route::put('/routines/{routine}', [RoutineController::class, 'update'])
+        ->name('routines.update')
+        ->middleware('permission:routine-edit');
+    Route::delete('/routines/{routine}', [RoutineController::class, 'destroy'])
+        ->name('routines.destroy')
+        ->middleware('permission:routine-delete');
+    Route::get('/routines/weekly', [RoutineController::class, 'weekly'])
+        ->name('routines.weekly')
+        ->middleware('permission:routine-list');
+    Route::get('/routines/teacher', [RoutineController::class, 'teacher'])
+        ->name('routines.teacher')
+        ->middleware('permission:routine-list');
+    Route::get('/routines/student', [RoutineController::class, 'student'])
+        ->name('routines.student')
+        ->middleware('permission:routine-list');
 });
 
 // Attendance Routes

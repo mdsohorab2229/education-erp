@@ -24,6 +24,7 @@ class PermissionSeeder extends Seeder
             'student' => ['list', 'create', 'edit', 'delete'],
             'teacher' => ['list', 'create', 'edit', 'delete'],
             'attendance' => ['list', 'create', 'edit', 'delete'],
+            'routine' => ['list', 'create', 'edit', 'delete'],
         ];
 
         foreach ($modules as $module => $actions) {

@@ -12,6 +12,7 @@ use App\Interfaces\Repositories\GuardianRepositoryInterface;
 use App\Interfaces\Repositories\PermissionRepositoryInterface;
 use App\Interfaces\Repositories\ProgramRepositoryInterface;
 use App\Interfaces\Repositories\RoleRepositoryInterface;
+use App\Interfaces\Repositories\RoutineRepositoryInterface;
 use App\Interfaces\Repositories\SectionRepositoryInterface;
 use App\Interfaces\Repositories\ShiftRepositoryInterface;
 use App\Interfaces\Repositories\StudentDocumentRepositoryInterface;
@@ -47,6 +48,7 @@ use App\Repositories\GuardianRepository;
 use App\Repositories\PermissionRepository;
 use App\Repositories\ProgramRepository;
 use App\Repositories\RoleRepository;
+use App\Repositories\RoutineRepository;
 use App\Repositories\SectionRepository;
 use App\Repositories\ShiftRepository;
 use App\Repositories\StudentDocumentRepository;
@@ -77,6 +79,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(GuardianRepositoryInterface::class, GuardianRepository::class);
         $this->app->bind(StudentDocumentRepositoryInterface::class, StudentDocumentRepository::class);
         $this->app->bind(TeacherRepositoryInterface::class, TeacherRepository::class);
+        $this->app->bind(RoutineRepositoryInterface::class, RoutineRepository::class);
     }
 
     public function boot(): void

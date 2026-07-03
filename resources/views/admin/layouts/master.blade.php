@@ -96,6 +96,27 @@
                         Teachers
                     </a>
                 </li>
+            <li class="nav-item mt-3">
+              <small class="text-secondary text-uppercase px-2">Academic Operations</small>
+            </li>
+            @can('attendance-list')
+            <li>
+                <a href="{{ route('attendance.index') }}"
+                class="nav-link text-white {{ request()->routeIs('attendance.*') ? 'active' : '' }}">
+                    <i class="bi bi-calendar-check me-2"></i>
+                    Attendance
+                </a>
+            </li>
+            @endcan
+            @can('routine-list')
+            <li>
+                <a href="{{ route('admin.routines.index') }}"
+                class="nav-link text-white {{ request()->routeIs('routines.*') ? 'active' : '' }}">
+                    <i class="bi bi-table me-2"></i>
+                    Class Routine
+                </a>
+            </li>
+            @endcan
             </ul>
             <hr>
             <form method="POST" action="{{ route('logout') }}">
