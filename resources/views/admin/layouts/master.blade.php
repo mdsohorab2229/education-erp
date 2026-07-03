@@ -117,6 +117,24 @@
                 </a>
             </li>
             @endcan
+            @can('content-list')
+            <li>
+                <a href="{{ route('admin.content.index') }}"
+                class="nav-link text-white {{ request()->routeIs('admin.content.*') ? 'active' : '' }}">
+                    <i class="bi bi-file-earmark me-2"></i>
+                    Digital Content
+                </a>
+            </li>
+            @endcan
+            @can('assignment-list')
+            <li>
+                <a href="{{ route('admin.assignment.index') }}"
+                class="nav-link text-white {{ request()->routeIs('admin.assignment.*') ? 'active' : '' }}">
+                    <i class="bi bi-journal-text me-2"></i>
+                    Assignments
+                </a>
+            </li>
+            @endcan
             </ul>
             <hr>
             <form method="POST" action="{{ route('logout') }}">

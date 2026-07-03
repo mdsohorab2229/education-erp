@@ -4,8 +4,10 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Interfaces\Repositories\AcademicYearRepositoryInterface;
+use App\Interfaces\Repositories\AssignmentRepositoryInterface;
 use App\Interfaces\Repositories\AttendanceRecordRepositoryInterface;
 use App\Interfaces\Repositories\AttendanceSessionRepositoryInterface;
+use App\Interfaces\Repositories\ContentRepositoryInterface;
 use App\Interfaces\Repositories\DepartmentRepositoryInterface;
 use App\Interfaces\Repositories\GroupRepositoryInterface;
 use App\Interfaces\Repositories\GuardianRepositoryInterface;
@@ -40,8 +42,10 @@ use App\Policies\StudentPolicy;
 use App\Policies\SubjectPolicy;
 use App\Policies\TeacherPolicy;
 use App\Repositories\AcademicYearRepository;
+use App\Repositories\AssignmentRepository;
 use App\Repositories\AttendanceRecordRepository;
 use App\Repositories\AttendanceSessionRepository;
+use App\Repositories\ContentRepository;
 use App\Repositories\DepartmentRepository;
 use App\Repositories\GroupRepository;
 use App\Repositories\GuardianRepository;
@@ -80,6 +84,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(StudentDocumentRepositoryInterface::class, StudentDocumentRepository::class);
         $this->app->bind(TeacherRepositoryInterface::class, TeacherRepository::class);
         $this->app->bind(RoutineRepositoryInterface::class, RoutineRepository::class);
+        $this->app->bind(ContentRepositoryInterface::class, ContentRepository::class);
+        $this->app->bind(AssignmentRepositoryInterface::class, AssignmentRepository::class);
     }
 
     public function boot(): void

@@ -36,6 +36,18 @@ class RoleSeeder extends Seeder
 
             if ($roleName === 'Teacher') {
                 $role->givePermissionTo($attendancePermissions);
+
+                $contentPermissions = Permission::whereIn('name', [
+                    'content-list', 'content-upload', 'content-edit', 'content-delete', 'content-download', 'content-comment',
+                ])->pluck('name')->toArray();
+
+                $role->givePermissionTo($contentPermissions);
+
+                $assignmentPermissions = Permission::whereIn('name', [
+                    'assignment-list', 'assignment-create', 'assignment-submit', 'assignment-edit', 'assignment-delete', 'assignment-review',
+                ])->pluck('name')->toArray();
+
+                $role->givePermissionTo($assignmentPermissions);
             }
 
             if ($roleName === 'Department Head') {

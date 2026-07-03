@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\ShiftController;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\AssignmentController;
+use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\RoutineController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\TeacherController;
@@ -312,6 +314,92 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::get('/routines/student', [RoutineController::class, 'student'])
         ->name('routines.student')
         ->middleware('permission:routine-list');
+
+    // Content Views
+    Route::get('/content', [ContentController::class, 'listView'])
+        ->name('content.index')
+        ->middleware('permission:content-list');
+    Route::get('/content/upload', [ContentController::class, 'uploadView'])
+        ->name('content.upload')
+        ->middleware('permission:content-upload');
+    Route::get('/content/{id}', [ContentController::class, 'showView'])
+        ->name('content.show')
+        ->middleware('permission:content-list');
+
+    // Assignment Views
+    Route::get('/assignment', [AssignmentController::class, 'indexView'])
+        ->name('assignment.index')
+        ->middleware('permission:assignment-list');
+    Route::get('/assignment/create', [AssignmentController::class, 'createView'])
+        ->name('assignment.create')
+        ->middleware('permission:assignment-create');
+    Route::get('/assignment/submit', [AssignmentController::class, 'submitView'])
+        ->name('assignment.submit')
+        ->middleware('permission:assignment-submit');
+
+    // Content
+    Route::get('/contents/by-section', [ContentController::class, 'bySection'])
+        ->name('contents.by-section')
+        ->middleware('permission:content-list');
+    Route::get('/contents/by-teacher', [ContentController::class, 'byTeacher'])
+        ->name('contents.by-teacher')
+        ->middleware('permission:content-list');
+    Route::get('/contents', [ContentController::class, 'index'])
+        ->name('contents.index')
+        ->middleware('permission:content-list');
+    Route::post('/contents', [ContentController::class, 'store'])
+        ->name('contents.upload')
+        ->middleware('permission:content-upload');
+    Route::get('/contents/{content}', [ContentController::class, 'show'])
+        ->name('contents.show')
+        ->middleware('permission:content-list');
+    Route::put('/contents/{content}', [ContentController::class, 'update'])
+        ->name('contents.update')
+        ->middleware('permission:content-edit');
+    Route::delete('/contents/{content}', [ContentController::class, 'destroy'])
+        ->name('contents.destroy')
+        ->middleware('permission:content-delete');
+    Route::get('/contents/{content}/download', [ContentController::class, 'download'])
+        ->name('contents.download')
+        ->middleware('permission:content-download');
+    Route::get('/contents/{content}/comments', [ContentController::class, 'comments'])
+        ->name('contents.comments')
+        ->middleware('permission:content-list');
+    Route::post('/contents/{content}/comments', [ContentController::class, 'addComment'])
+        ->name('contents.comments.store')
+        ->middleware('permission:content-comment');
+
+    // Assignments
+    Route::get('/assignments/by-section', [AssignmentController::class, 'bySection'])
+        ->name('assignments.by-section')
+        ->middleware('permission:assignment-list');
+    Route::get('/assignments/by-teacher', [AssignmentController::class, 'byTeacher'])
+        ->name('assignments.by-teacher')
+        ->middleware('permission:assignment-list');
+    Route::get('/assignments/upcoming', [AssignmentController::class, 'upcoming'])
+        ->name('assignments.upcoming')
+        ->middleware('permission:assignment-list');
+    Route::post('/assignments/submit', [AssignmentController::class, 'submit'])
+        ->name('assignments.submit')
+        ->middleware('permission:assignment-submit');
+    Route::get('/assignments', [AssignmentController::class, 'index'])
+        ->name('assignments.index')
+        ->middleware('permission:assignment-list');
+    Route::post('/assignments', [AssignmentController::class, 'store'])
+        ->name('assignments.create')
+        ->middleware('permission:assignment-create');
+    Route::get('/assignments/{assignment}', [AssignmentController::class, 'show'])
+        ->name('assignments.show')
+        ->middleware('permission:assignment-list');
+    Route::put('/assignments/{assignment}', [AssignmentController::class, 'update'])
+        ->name('assignments.update')
+        ->middleware('permission:assignment-edit');
+    Route::delete('/assignments/{assignment}', [AssignmentController::class, 'destroy'])
+        ->name('assignments.destroy')
+        ->middleware('permission:assignment-delete');
+    Route::put('/assignments/{submission}/marks', [AssignmentController::class, 'marks'])
+        ->name('assignments.review')
+        ->middleware('permission:assignment-review');
 });
 
 // Attendance Routes

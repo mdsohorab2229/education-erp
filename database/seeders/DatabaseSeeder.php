@@ -22,6 +22,11 @@ class DatabaseSeeder extends Seeder
             GroupSeeder::class,
             StudentSeeder::class,
             TeacherSeeder::class,
+            ContentDemoSeeder::class,
+            ContentDemoSeeder::class,
+            AssignmentDemoSeeder::class,
+            AttendanceDemoSeeder::class,
+            RoutineDemoSeeder::class,
         ]);
     }
 }

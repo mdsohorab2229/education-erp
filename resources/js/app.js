@@ -6,9 +6,14 @@ import TomSelect from 'tom-select';
 
 import Alpine from 'alpinejs';
 import attendance from './attendance';
+import Swal from 'sweetalert2';
 
 window.Alpine = Alpine;
 window.TomSelect = TomSelect;
+window.Swal = Swal;
+
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
 Alpine.data('attendance', attendance);
 
