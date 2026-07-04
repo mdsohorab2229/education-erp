@@ -159,9 +159,9 @@ class RoutineTest extends TestCase
 
     // -- Authorization (teacher) --
 
-    public function test_teacher_cannot_index(): void
+    public function test_teacher_can_index(): void
     {
-        $this->actingAs($this->teacher)->getJson(route('admin.routines.index'))->assertStatus(403);
+        $this->actingAs($this->teacher)->getJson(route('admin.routines.index'))->assertStatus(200);
     }
 
     public function test_teacher_cannot_store(): void

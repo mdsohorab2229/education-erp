@@ -9,7 +9,6 @@ use App\Http\Requests\Admin\AssignmentSubmissionRequest;
 use App\Http\Requests\Admin\AssignmentUpdateRequest;
 use App\Http\Resources\AssignmentResource;
 use App\Http\Resources\AssignmentSubmissionResource;
-use App\Models\Student;
 use App\Services\AssignmentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -78,8 +77,13 @@ class AssignmentController extends Controller
 
     public function submit(AssignmentSubmissionRequest $request): AssignmentSubmissionResource
     {
-        $studentId = $request->input('student_id')
-            ?? Student::where('email', auth()->user()->email)?->first()?->id;
+        $studentId = $request->input('student_id');
+
+        if (!$studentId) {
+            $studentId = $this->service->findStudentIdByEmail(
+                (string) auth()->user()->email,
+            );
+        }
 
         if (!$studentId) {
             abort(422, 'Student not found. Please provide a valid student ID.');
@@ -132,5 +136,20 @@ class AssignmentController extends Controller
         );
 
         return AssignmentResource::collection($assignments);
+    }
+
+    public function search(Request $request): AnonymousResourceCollection
+    {
+        return $this->index($request);
+    }
+
+    public function export(): JsonResponse
+    {
+        return response()->json(['message' => 'Export functionality coming soon.']);
+    }
+
+    public function print(): JsonResponse
+    {
+        return response()->json(['message' => 'Print functionality coming soon.']);
     }
 }

@@ -142,4 +142,19 @@ class StudentController extends Controller
         return redirect()->route('admin.students.index')
             ->with('success', 'Student status updated successfully.');
     }
+
+    public function search(Request $request): View
+    {
+        return $this->index($request);
+    }
+
+    public function export(): RedirectResponse
+    {
+        return redirect()->route('admin.students.index')->with('info', 'Export functionality coming soon.');
+    }
+
+    public function print(Request $request): View
+    {
+        return $this->index($request);
+    }
 }

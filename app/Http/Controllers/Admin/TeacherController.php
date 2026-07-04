@@ -166,4 +166,19 @@ class TeacherController extends Controller
         return redirect()->route('admin.teachers.show', $teacher->id)
             ->with('success', 'Departments assigned successfully.');
     }
+
+    public function search(Request $request): View
+    {
+        return $this->index($request);
+    }
+
+    public function export(): RedirectResponse
+    {
+        return redirect()->route('admin.teachers.index')->with('info', 'Export functionality coming soon.');
+    }
+
+    public function print(Request $request): View
+    {
+        return $this->index($request);
+    }
 }

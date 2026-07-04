@@ -10,6 +10,7 @@ use App\Models\Group;
 use App\Services\GroupService;
 use App\Services\ProgramService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class GroupController extends Controller
@@ -69,5 +70,20 @@ class GroupController extends Controller
 
         return redirect()->route('admin.groups.index')
             ->with('success', 'Group deleted successfully.');
+    }
+
+    public function search(Request $request): View
+    {
+        return $this->index();
+    }
+
+    public function export(): RedirectResponse
+    {
+        return redirect()->route('admin.groups.index')->with('info', 'Export functionality coming soon.');
+    }
+
+    public function print(): View
+    {
+        return $this->index();
     }
 }

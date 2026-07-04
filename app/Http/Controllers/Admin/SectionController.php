@@ -10,6 +10,7 @@ use App\Models\Section;
 use App\Services\ProgramService;
 use App\Services\SectionService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class SectionController extends Controller
@@ -69,5 +70,20 @@ class SectionController extends Controller
 
         return redirect()->route('admin.sections.index')
             ->with('success', 'Section deleted successfully.');
+    }
+
+    public function search(Request $request): View
+    {
+        return $this->index();
+    }
+
+    public function export(): RedirectResponse
+    {
+        return redirect()->route('admin.sections.index')->with('info', 'Export functionality coming soon.');
+    }
+
+    public function print(): View
+    {
+        return $this->index();
     }
 }

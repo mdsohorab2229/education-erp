@@ -137,4 +137,19 @@ class ContentController extends Controller
 
         return new ContentCommentResource($comment);
     }
+
+    public function search(Request $request): AnonymousResourceCollection
+    {
+        return $this->index($request);
+    }
+
+    public function export(): JsonResponse
+    {
+        return response()->json(['message' => 'Export functionality coming soon.']);
+    }
+
+    public function print(): JsonResponse
+    {
+        return response()->json(['message' => 'Print functionality coming soon.']);
+    }
 }

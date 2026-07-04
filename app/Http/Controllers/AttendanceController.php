@@ -14,6 +14,7 @@ use App\Services\AttendanceBulkService;
 use App\Services\AttendanceRecordService;
 use App\Services\AttendanceSessionService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class AttendanceController extends Controller
@@ -113,5 +114,20 @@ class AttendanceController extends Controller
                 'total' => $sessions->total(),
             ],
         );
+    }
+
+    public function search(Request $request): View
+    {
+        return $this->index();
+    }
+
+    public function export(): JsonResponse
+    {
+        return $this->success('Export functionality coming soon.');
+    }
+
+    public function print(): View
+    {
+        return $this->index();
     }
 }

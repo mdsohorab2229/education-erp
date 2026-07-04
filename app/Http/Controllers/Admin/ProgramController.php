@@ -10,6 +10,7 @@ use App\Models\Program;
 use App\Services\DepartmentService;
 use App\Services\ProgramService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProgramController extends Controller
@@ -69,5 +70,20 @@ class ProgramController extends Controller
 
         return redirect()->route('admin.programs.index')
             ->with('success', 'Program deleted successfully.');
+    }
+
+    public function search(Request $request): View
+    {
+        return $this->index();
+    }
+
+    public function export(): RedirectResponse
+    {
+        return redirect()->route('admin.programs.index')->with('info', 'Export functionality coming soon.');
+    }
+
+    public function print(): View
+    {
+        return $this->index();
     }
 }

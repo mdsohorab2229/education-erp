@@ -5,7 +5,6 @@ namespace App\Services;
 
 use App\Interfaces\Repositories\GuardianRepositoryInterface;
 use App\Interfaces\Repositories\StudentRepositoryInterface;
-use App\Models\Student;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +21,7 @@ class StudentService
         return $this->studentRepository->all();
     }
 
-    public function findById(int $id): ?Student
+    public function findById(int $id): mixed
     {
         return $this->studentRepository->findByIdWithRelations($id);
     }
@@ -32,10 +31,10 @@ class StudentService
         return $this->studentRepository->paginateWithFilters($filters, $perPage);
     }
 
-    public function admit(array $data): Student
+    public function admit(array $data): mixed
     {
-        return DB::transaction(function () use ($data): Student {
-            $data['admission_no'] = $this->generateAdmissionNo();
+        return DB::transaction(function () use ($data): mixed {
+            $data['admission_no'] = $this->studentRepository->generateAdmissionNo();
 
             $student = $this->studentRepository->create($data);
 
@@ -44,15 +43,13 @@ class StudentService
                 $this->guardianRepository->create($data['guardian']);
             }
 
-            return $student->load([
-                'guardian', 'program', 'section', 'academicYear', 'shift', 'group',
-            ]);
+            return $student;
         });
     }
 
-    public function update(int $id, array $data): Student
+    public function update(int $id, array $data): mixed
     {
-        return DB::transaction(function () use ($id, $data): Student {
+        return DB::transaction(function () use ($id, $data): mixed {
             $student = $this->studentRepository->update($id, $data);
 
             if (!empty($data['guardian'])) {
@@ -69,9 +66,9 @@ class StudentService
         });
     }
 
-    public function changeStatus(int $id, string $status): Student
+    public function changeStatus(int $id, string $status): mixed
     {
-        return DB::transaction(function () use ($id, $status): Student {
+        return DB::transaction(function () use ($id, $status): mixed {
             return $this->studentRepository->update($id, ['status' => $status]);
         });
     }
@@ -85,21 +82,7 @@ class StudentService
 
     public function generateAdmissionNo(): string
     {
-        $year = now()->format('Y');
-        $prefix = "STU-{$year}-";
-        $lastStudent = DB::table('students')
-            ->where('admission_no', 'like', "{$prefix}%")
-            ->orderBy('id', 'desc')
-            ->first();
-
-        if ($lastStudent) {
-            $lastNumber = (int) substr($lastStudent->admission_no, strlen($prefix));
-            $newNumber = $lastNumber + 1;
-        } else {
-            $newNumber = 1;
-        }
-
-        return $prefix . str_pad((string) $newNumber, 6, '0', STR_PAD_LEFT);
+        return $this->studentRepository->generateAdmissionNo();
     }
 
     public function countByStatus(string $status): int

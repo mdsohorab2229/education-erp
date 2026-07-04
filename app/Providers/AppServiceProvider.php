@@ -5,6 +5,7 @@ namespace App\Providers;
 
 use App\Interfaces\Repositories\AcademicYearRepositoryInterface;
 use App\Interfaces\Repositories\AssignmentRepositoryInterface;
+use App\Interfaces\Repositories\AssignmentSubmissionRepositoryInterface;
 use App\Interfaces\Repositories\AttendanceRecordRepositoryInterface;
 use App\Interfaces\Repositories\AttendanceSessionRepositoryInterface;
 use App\Interfaces\Repositories\ContentRepositoryInterface;
@@ -48,6 +49,7 @@ use App\Policies\SubjectPolicy;
 use App\Policies\TeacherPolicy;
 use App\Repositories\AcademicYearRepository;
 use App\Repositories\AssignmentRepository;
+use App\Repositories\AssignmentSubmissionRepository;
 use App\Repositories\AttendanceRecordRepository;
 use App\Repositories\AttendanceSessionRepository;
 use App\Repositories\ContentRepository;
@@ -96,6 +98,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(RoutineRepositoryInterface::class, RoutineRepository::class);
         $this->app->bind(ContentRepositoryInterface::class, ContentRepository::class);
         $this->app->bind(AssignmentRepositoryInterface::class, AssignmentRepository::class);
+        $this->app->bind(AssignmentSubmissionRepositoryInterface::class, AssignmentSubmissionRepository::class);
         $this->app->bind(ExamTypeRepositoryInterface::class, ExamTypeRepository::class);
         $this->app->bind(ExamRepositoryInterface::class, ExamRepository::class);
         $this->app->bind(ExamSubjectRepositoryInterface::class, ExamSubjectRepository::class);

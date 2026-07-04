@@ -212,13 +212,13 @@ class StudentTest extends TestCase
         $this->assertSoftDeleted('students', ['id' => $student->id]);
     }
 
-    public function test_teacher_cannot_access_index(): void
+    public function test_teacher_can_access_index(): void
     {
         $this->actingAs($this->teacher);
 
         $response = $this->get(route('admin.students.index'));
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_teacher_cannot_admit_student(): void
@@ -230,7 +230,7 @@ class StudentTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_teacher_cannot_show_student(): void
+    public function test_teacher_can_show_student(): void
     {
         $this->actingAs($this->admin);
 
@@ -241,7 +241,7 @@ class StudentTest extends TestCase
 
         $response = $this->get(route('admin.students.show', $student->id));
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
     }
 
     public function test_teacher_cannot_edit_student(): void

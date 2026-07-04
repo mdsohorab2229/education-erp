@@ -61,18 +61,9 @@ class MarksEntryController extends Controller
     public function bulkStore(MarksEntryRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $userId = (int) $request->user()->id;
+        $data['user_id'] = (int) $request->user()->id;
 
-        $rows = array_map(
-            fn (array $mark): array => array_merge($mark, [
-                'exam_subject_id' => $data['exam_subject_id'],
-                'created_by' => $userId,
-                'updated_by' => $userId,
-            ]),
-            $data['marks'],
-        );
-
-        $marks = $this->service->bulkStore($rows);
+        $marks = $this->service->bulkStore($data);
 
         return $this->created(
             __('examination.marks_stored'),
@@ -84,7 +75,7 @@ class MarksEntryController extends Controller
     {
         try {
             $data = $request->validated();
-            $data['updated_by'] = (int) $request->user()->id;
+            $data['user_id'] = (int) $request->user()->id;
             $mark = $this->service->updateMark($id, $data);
         } catch (\App\Exceptions\GradeNotFoundException $e) {
             return $this->error($e->getMessage(), 422);
@@ -96,5 +87,20 @@ class MarksEntryController extends Controller
             __('examination.mark_updated'),
             new MarkResource($mark),
         );
+    }
+
+    public function search(Request $request): JsonResponse
+    {
+        return $this->index($request);
+    }
+
+    public function export(): JsonResponse
+    {
+        return $this->success('Export functionality coming soon.');
+    }
+
+    public function print(): JsonResponse
+    {
+        return $this->success('Print functionality coming soon.');
     }
 }

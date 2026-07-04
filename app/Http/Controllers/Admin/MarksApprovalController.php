@@ -87,4 +87,19 @@ class MarksApprovalController extends Controller
             new MarkResource($mark),
         );
     }
+
+    public function search(Request $request): JsonResponse
+    {
+        return $this->pending($request);
+    }
+
+    public function export(): JsonResponse
+    {
+        return $this->success('Export functionality coming soon.');
+    }
+
+    public function print(): JsonResponse
+    {
+        return $this->success('Print functionality coming soon.');
+    }
 }

@@ -11,6 +11,7 @@ use App\Http\Responses\ApiResponse;
 use App\Services\ExamService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ExamController extends Controller
 {
@@ -40,8 +41,7 @@ class ExamController extends Controller
     public function store(StoreExamRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $data['created_by'] = (int) $request->user()->id;
-        $data['updated_by'] = (int) $request->user()->id;
+        $data['user_id'] = (int) $request->user()->id;
         $exam = $this->service->create($data);
 
         return $this->created(
@@ -67,7 +67,7 @@ class ExamController extends Controller
     public function update(UpdateExamRequest $request, int $id): JsonResponse
     {
         $data = $request->validated();
-        $data['updated_by'] = (int) $request->user()->id;
+        $data['user_id'] = (int) $request->user()->id;
         $exam = $this->service->update($id, $data);
 
         return $this->success(
@@ -81,5 +81,30 @@ class ExamController extends Controller
         $this->service->delete($id);
 
         return $this->success(__('examination.exam_deleted'));
+    }
+
+    public function create(): View
+    {
+        return view('admin.exams.index');
+    }
+
+    public function edit(int $id): View
+    {
+        return view('admin.exams.index');
+    }
+
+    public function search(Request $request): JsonResponse
+    {
+        return $this->index($request);
+    }
+
+    public function export(): JsonResponse
+    {
+        return $this->success('Export functionality coming soon.');
+    }
+
+    public function print(): JsonResponse
+    {
+        return $this->success('Print functionality coming soon.');
     }
 }

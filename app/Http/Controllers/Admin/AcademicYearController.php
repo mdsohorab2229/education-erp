@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\UpdateAcademicYearRequest;
 use App\Models\AcademicYear;
 use App\Services\AcademicYearService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class AcademicYearController extends Controller
@@ -63,5 +64,20 @@ class AcademicYearController extends Controller
 
         return redirect()->route('admin.academic-years.index')
             ->with('success', 'Academic Year deleted successfully.');
+    }
+
+    public function search(Request $request): View
+    {
+        return $this->index();
+    }
+
+    public function export(): RedirectResponse
+    {
+        return redirect()->route('admin.academic-years.index')->with('info', 'Export functionality coming soon.');
+    }
+
+    public function print(): View
+    {
+        return $this->index();
     }
 }

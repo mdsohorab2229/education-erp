@@ -30,28 +30,79 @@ class RoleSeeder extends Seeder
                 $role->syncPermissions($allPermissions);
             }
 
-            $attendancePermissions = Permission::whereIn('name', [
-                'attendance-list', 'attendance-create', 'attendance-edit', 'attendance-delete',
-            ])->pluck('name')->toArray();
-
-            if ($roleName === 'Teacher') {
-                $role->givePermissionTo($attendancePermissions);
-
-                $contentPermissions = Permission::whereIn('name', [
-                    'content-list', 'content-upload', 'content-edit', 'content-delete', 'content-download', 'content-comment',
-                ])->pluck('name')->toArray();
-
-                $role->givePermissionTo($contentPermissions);
-
-                $assignmentPermissions = Permission::whereIn('name', [
-                    'assignment-list', 'assignment-create', 'assignment-submit', 'assignment-edit', 'assignment-delete', 'assignment-review',
-                ])->pluck('name')->toArray();
-
-                $role->givePermissionTo($assignmentPermissions);
+            if ($roleName === 'Principal') {
+                $role->givePermissionTo([
+                    'dashboard-access',
+                    'academic-year-list',
+                    'department-list',
+                    'program-list',
+                    'section-list',
+                    'subject-list',
+                    'shift-list',
+                    'group-list',
+                    'student-list', 'student-create', 'student-edit',
+                    'teacher-list', 'teacher-create', 'teacher-edit',
+                    'attendance-list', 'attendance-create', 'attendance-edit',
+                    'routine-list',
+                    'content-list', 'content-download',
+                    'assignment-list',
+                    'exam-list',
+                    'marks-entry', 'marks-approve',
+                ]);
             }
 
             if ($roleName === 'Department Head') {
-                $role->givePermissionTo(['attendance-list', 'attendance-create', 'attendance-edit']);
+                $role->givePermissionTo([
+                    'dashboard-access',
+                    'department-list',
+                    'program-list',
+                    'section-list',
+                    'subject-list', 'subject-create', 'subject-edit',
+                    'shift-list',
+                    'group-list',
+                    'student-list', 'student-create', 'student-edit',
+                    'teacher-list',
+                    'attendance-list', 'attendance-create', 'attendance-edit',
+                    'routine-list', 'routine-create', 'routine-edit',
+                    'content-list', 'content-upload', 'content-edit',
+                    'assignment-list', 'assignment-create', 'assignment-edit',
+                    'exam-list',
+                    'marks-entry',
+                ]);
+            }
+
+            if ($roleName === 'Teacher') {
+                $role->givePermissionTo([
+                    'dashboard-access',
+                    'student-list',
+                    'attendance-list', 'attendance-create', 'attendance-edit', 'attendance-delete',
+                    'routine-list',
+                    'content-list', 'content-upload', 'content-edit', 'content-delete', 'content-download', 'content-comment',
+                    'assignment-list', 'assignment-create', 'assignment-submit', 'assignment-edit', 'assignment-delete', 'assignment-review',
+                    'exam-list',
+                    'marks-entry',
+                ]);
+            }
+
+            if ($roleName === 'Student') {
+                $role->givePermissionTo([
+                    'dashboard-access',
+                    'attendance-list',
+                    'routine-list',
+                    'content-list', 'content-download',
+                    'assignment-list', 'assignment-submit',
+                    'exam-list',
+                ]);
+            }
+
+            if ($roleName === 'Parent') {
+                $role->givePermissionTo([
+                    'dashboard-access',
+                    'attendance-list',
+                    'routine-list',
+                    'assignment-list',
+                    'exam-list',
+                ]);
             }
         }
     }

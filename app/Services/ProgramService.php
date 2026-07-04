@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Interfaces\Repositories\ProgramRepositoryInterface;
-use App\Models\Program;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -19,19 +18,19 @@ class ProgramService
         return $this->repository->all();
     }
 
-    public function findById(int $id): ?Program
+    public function findById(int $id): mixed
     {
         return $this->repository->findById($id);
     }
 
-    public function create(array $data): Program
+    public function create(array $data): mixed
     {
-        return DB::transaction(fn(): Program => $this->repository->create($data));
+        return DB::transaction(fn(): mixed => $this->repository->create($data));
     }
 
-    public function update(int $id, array $data): Program
+    public function update(int $id, array $data): mixed
     {
-        return DB::transaction(fn(): Program => $this->repository->update($id, $data));
+        return DB::transaction(fn(): mixed => $this->repository->update($id, $data));
     }
 
     public function delete(int $id): void

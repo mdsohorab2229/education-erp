@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\UpdateShiftRequest;
 use App\Models\Shift;
 use App\Services\ShiftService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ShiftController extends Controller
@@ -63,5 +64,20 @@ class ShiftController extends Controller
 
         return redirect()->route('admin.shifts.index')
             ->with('success', 'Shift deleted successfully.');
+    }
+
+    public function search(Request $request): View
+    {
+        return $this->index();
+    }
+
+    public function export(): RedirectResponse
+    {
+        return redirect()->route('admin.shifts.index')->with('info', 'Export functionality coming soon.');
+    }
+
+    public function print(): View
+    {
+        return $this->index();
     }
 }

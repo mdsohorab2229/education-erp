@@ -10,6 +10,7 @@ use App\Models\Subject;
 use App\Services\ProgramService;
 use App\Services\SubjectService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class SubjectController extends Controller
@@ -69,5 +70,20 @@ class SubjectController extends Controller
 
         return redirect()->route('admin.subjects.index')
             ->with('success', 'Subject deleted successfully.');
+    }
+
+    public function search(Request $request): View
+    {
+        return $this->index();
+    }
+
+    public function export(): RedirectResponse
+    {
+        return redirect()->route('admin.subjects.index')->with('info', 'Export functionality coming soon.');
+    }
+
+    public function print(): View
+    {
+        return $this->index();
     }
 }

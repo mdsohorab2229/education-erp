@@ -5,7 +5,6 @@ namespace App\Services;
 
 use App\Interfaces\Repositories\ExamSubjectRepositoryInterface;
 use App\Interfaces\Repositories\MarkRepositoryInterface;
-use App\Models\Mark;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -18,30 +17,47 @@ class MarksEntryService
         private readonly GradeCalculationService $gradeCalculationService,
     ) {}
 
-    public function bulkStore(array $rows): array
+    public function bulkStore(array $data): array
     {
-        return DB::transaction(function () use ($rows): array {
-            $processed = [];
+        $userId = (int) ($data['user_id'] ?? 0);
+        $examSubjectId = (int) ($data['exam_subject_id'] ?? 0);
+        $rows = $data['marks'] ?? [];
 
-            foreach ($rows as $row) {
+        $processed = array_map(
+            fn (array $mark): array => array_merge($mark, [
+                'exam_subject_id' => $examSubjectId,
+                'created_by' => $userId,
+                'updated_by' => $userId,
+            ]),
+            $rows,
+        );
+
+        return DB::transaction(function () use ($processed): array {
+            $enriched = [];
+
+            foreach ($processed as $row) {
                 $totalMark = $this->calculateTotal($row);
                 $grade = $this->gradeCalculationService->calculate($totalMark);
 
-                $processed[] = array_merge($row, [
+                $enriched[] = array_merge($row, [
                     'total_mark' => $totalMark,
                     'grade_id' => $grade['grade_id'],
                 ]);
             }
 
-            $this->markRepository->bulkUpsert($processed);
+            $this->markRepository->bulkUpsert($enriched);
 
-            return $processed;
+            return $enriched;
         });
     }
 
-    public function updateMark(int $id, array $data): Mark
+    public function updateMark(int $id, array $data): mixed
     {
-        return DB::transaction(function () use ($id, $data): Mark {
+        $userId = (int) ($data['user_id'] ?? 0);
+        unset($data['user_id']);
+        $data['updated_by'] = $userId;
+
+        return DB::transaction(function () use ($id, $data): mixed {
             $mark = $this->markRepository->update($id, $data);
 
             $totalMark = $this->calculateTotal($mark->toArray());

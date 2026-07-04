@@ -25,5 +25,15 @@ interface TeacherRepositoryInterface
 
     public function findByEmployeeId(string $employeeId): ?Teacher;
 
+    public function generateEmployeeId(): string;
+
+    public function attachSubjects(int $teacherId, array $subjectIds): Teacher;
+
+    public function syncSubjects(int $teacherId, array $subjectIds): Teacher;
+
+    public function attachDepartments(int $teacherId, array $departmentIds): Teacher;
+
+    public function syncDepartments(int $teacherId, array $departmentIds): Teacher;
+
     public function countByStatus(string $status): int;
 }

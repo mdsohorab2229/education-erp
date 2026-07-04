@@ -55,6 +55,30 @@ class StudentRepository implements StudentRepositoryInterface
         return $this->model->where('admission_no', $admissionNo)->first();
     }
 
+    public function findByEmail(string $email): ?Student
+    {
+        return $this->model->where('email', $email)->first();
+    }
+
+    public function generateAdmissionNo(): string
+    {
+        $year = now()->format('Y');
+        $prefix = "STU-{$year}-";
+        $lastStudent = $this->model
+            ->where('admission_no', 'like', "{$prefix}%")
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($lastStudent) {
+            $lastNumber = (int) substr($lastStudent->admission_no, strlen($prefix));
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        return $prefix . str_pad((string) $newNumber, 6, '0', STR_PAD_LEFT);
+    }
+
     public function findByIdWithRelations(int $id): ?Student
     {
         return $this->model->with([

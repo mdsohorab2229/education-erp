@@ -11,6 +11,7 @@ use App\Services\RoutineService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\View\View;
 
 class RoutineController extends Controller
 {
@@ -73,5 +74,41 @@ class RoutineController extends Controller
         );
 
         return RoutineResource::collection($routines);
+    }
+
+    public function create(): View
+    {
+        return view('admin.routines.weekly');
+    }
+
+    public function show(int $id): RoutineResource
+    {
+        $routine = $this->service->findById($id);
+
+        if (!$routine) {
+            abort(404, 'Routine not found.');
+        }
+
+        return new RoutineResource($routine);
+    }
+
+    public function edit(int $id): View
+    {
+        return view('admin.routines.weekly');
+    }
+
+    public function search(Request $request): AnonymousResourceCollection
+    {
+        return $this->index();
+    }
+
+    public function export(): JsonResponse
+    {
+        return response()->json(['message' => 'Export functionality coming soon.']);
+    }
+
+    public function print(): JsonResponse
+    {
+        return response()->json(['message' => 'Print functionality coming soon.']);
     }
 }

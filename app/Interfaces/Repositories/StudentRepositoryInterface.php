@@ -21,6 +21,10 @@ interface StudentRepositoryInterface
 
     public function findByAdmissionNo(string $admissionNo): ?Student;
 
+    public function findByEmail(string $email): ?Student;
+
+    public function generateAdmissionNo(): string;
+
     public function findByIdWithRelations(int $id): ?Student;
 
     public function paginateWithFilters(array $filters, int $perPage = 15): LengthAwarePaginator;

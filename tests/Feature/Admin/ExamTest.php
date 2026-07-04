@@ -131,11 +131,11 @@ class ExamTest extends TestCase
             ->assertStatus(403);
     }
 
-    public function test_teacher_cannot_access_index(): void
+    public function test_teacher_can_access_index(): void
     {
         $this->actingAs($this->teacher)
             ->getJson(route('admin.exams.index'))
-            ->assertStatus(403);
+            ->assertStatus(200);
     }
 
     public function test_teacher_cannot_store(): void

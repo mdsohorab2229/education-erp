@@ -4,9 +4,8 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Interfaces\Repositories\AssignmentRepositoryInterface;
-use App\Models\Assignment;
-use App\Models\AssignmentSubmission;
-use App\Models\Student;
+use App\Interfaces\Repositories\AssignmentSubmissionRepositoryInterface;
+use App\Interfaces\Repositories\StudentRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -22,6 +21,8 @@ class AssignmentService
 
     public function __construct(
         private readonly AssignmentRepositoryInterface $repository,
+        private readonly AssignmentSubmissionRepositoryInterface $submissionRepository,
+        private readonly StudentRepositoryInterface $studentRepository,
     ) {}
 
     public function all(): Collection
@@ -34,23 +35,19 @@ class AssignmentService
         return $this->repository->paginate($perPage);
     }
 
-    public function findById(int $id): ?Assignment
+    public function findById(int $id): mixed
     {
         return $this->repository->findById($id);
     }
 
-    public function create(array $data): Assignment
+    public function create(array $data): mixed
     {
-        return DB::transaction(function () use ($data): Assignment {
-            return $this->repository->create($data);
-        });
+        return DB::transaction(fn(): mixed => $this->repository->create($data));
     }
 
-    public function update(int $id, array $data): Assignment
+    public function update(int $id, array $data): mixed
     {
-        return DB::transaction(function () use ($id, $data): Assignment {
-            return $this->repository->update($id, $data);
-        });
+        return DB::transaction(fn(): mixed => $this->repository->update($id, $data));
     }
 
     public function delete(int $id): void
@@ -75,7 +72,14 @@ class AssignmentService
         return $this->repository->getUpcoming($sectionId);
     }
 
-    public function submit(int $assignmentId, int $studentId, UploadedFile $file): AssignmentSubmission
+    public function findStudentIdByEmail(string $email): ?int
+    {
+        $student = $this->studentRepository->findByEmail($email);
+
+        return $student?->id;
+    }
+
+    public function submit(int $assignmentId, int $studentId, UploadedFile $file): mixed
     {
         $assignment = $this->repository->findById($assignmentId);
 
@@ -83,22 +87,24 @@ class AssignmentService
             throw new \RuntimeException("Assignment with ID {$assignmentId} not found.");
         }
 
-        $student = Student::find($studentId);
+        $student = $this->studentRepository->findById($studentId);
 
         if (!$student) {
             throw new \RuntimeException("Student with ID {$studentId} not found.");
         }
 
-        if (AssignmentSubmission::where('assignment_id', $assignmentId)->where('student_id', $studentId)->exists()) {
+        $existing = $this->submissionRepository->findByAssignmentAndStudent($assignmentId, $studentId);
+
+        if ($existing) {
             throw ValidationException::withMessages([
                 'assignment_id' => ['A submission already exists for this assignment and student.'],
             ]);
         }
 
-        return DB::transaction(function () use ($assignment, $studentId, $file): AssignmentSubmission {
+        return DB::transaction(function () use ($assignment, $studentId, $file): mixed {
             $submissionFile = $file->store(self::SUBMISSION_PATH, self::DISK);
 
-            return $assignment->submissions()->create([
+            return $this->submissionRepository->create([
                 'assignment_id' => $assignment->id,
                 'student_id' => $studentId,
                 'submission_file' => $submissionFile,
@@ -108,22 +114,20 @@ class AssignmentService
         });
     }
 
-    public function updateMarks(int $submissionId, ?float $marks, ?string $feedback = null): AssignmentSubmission
+    public function updateMarks(int $submissionId, ?float $marks, ?string $feedback = null): mixed
     {
-        $submission = AssignmentSubmission::find($submissionId);
+        $submission = $this->submissionRepository->findById($submissionId);
 
         if (!$submission) {
             throw new \RuntimeException("Submission with ID {$submissionId} not found.");
         }
 
-        return DB::transaction(function () use ($submission, $marks, $feedback): AssignmentSubmission {
-            $submission->update([
+        return DB::transaction(function () use ($submission, $marks, $feedback): mixed {
+            return $this->submissionRepository->update($submission->id, [
                 'marks' => $marks,
                 'feedback' => $feedback,
                 'status' => $marks !== null ? 'graded' : $submission->status,
             ]);
-
-            return $submission;
         });
     }
 }

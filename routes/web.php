@@ -55,6 +55,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::delete('/roles/{role}', [RoleController::class, 'destroy'])
         ->name('roles.destroy')
         ->middleware('permission:role-delete');
+    Route::get('/roles/search', [RoleController::class, 'search'])
+        ->name('roles.search')
+        ->middleware('permission:role-list');
+    Route::get('/roles/export', [RoleController::class, 'export'])
+        ->name('roles.export')
+        ->middleware('permission:role-list');
+    Route::get('/roles/print', [RoleController::class, 'print'])
+        ->name('roles.print')
+        ->middleware('permission:role-list');
 
     // Permissions
     Route::get('/permissions', [PermissionController::class, 'index'])
@@ -78,6 +87,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::delete('/permissions/{permission}', [PermissionController::class, 'destroy'])
         ->name('permissions.destroy')
         ->middleware('permission:permission-delete');
+    Route::get('/permissions/search', [PermissionController::class, 'search'])
+        ->name('permissions.search')
+        ->middleware('permission:permission-list');
+    Route::get('/permissions/export', [PermissionController::class, 'export'])
+        ->name('permissions.export')
+        ->middleware('permission:permission-list');
+    Route::get('/permissions/print', [PermissionController::class, 'print'])
+        ->name('permissions.print')
+        ->middleware('permission:permission-list');
 
     // Academic Years
     Route::get('/academic-years', [AcademicYearController::class, 'index'])
@@ -101,6 +119,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::delete('/academic-years/{academicYear}', [AcademicYearController::class, 'destroy'])
         ->name('academic-years.destroy')
         ->middleware('permission:academic-year-delete');
+    Route::get('/academic-years/search', [AcademicYearController::class, 'search'])
+        ->name('academic-years.search')
+        ->middleware('permission:academic-year-list');
+    Route::get('/academic-years/export', [AcademicYearController::class, 'export'])
+        ->name('academic-years.export')
+        ->middleware('permission:academic-year-list');
+    Route::get('/academic-years/print', [AcademicYearController::class, 'print'])
+        ->name('academic-years.print')
+        ->middleware('permission:academic-year-list');
 
     // Departments
     Route::get('/departments', [DepartmentController::class, 'index'])
@@ -124,6 +151,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::delete('/departments/{department}', [DepartmentController::class, 'destroy'])
         ->name('departments.destroy')
         ->middleware('permission:department-delete');
+    Route::get('/departments/search', [DepartmentController::class, 'search'])
+        ->name('departments.search')
+        ->middleware('permission:department-list');
+    Route::get('/departments/export', [DepartmentController::class, 'export'])
+        ->name('departments.export')
+        ->middleware('permission:department-list');
+    Route::get('/departments/print', [DepartmentController::class, 'print'])
+        ->name('departments.print')
+        ->middleware('permission:department-list');
 
     // Programs
     Route::get('/programs', [ProgramController::class, 'index'])
@@ -147,6 +183,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::delete('/programs/{program}', [ProgramController::class, 'destroy'])
         ->name('programs.destroy')
         ->middleware('permission:program-delete');
+    Route::get('/programs/search', [ProgramController::class, 'search'])
+        ->name('programs.search')
+        ->middleware('permission:program-list');
+    Route::get('/programs/export', [ProgramController::class, 'export'])
+        ->name('programs.export')
+        ->middleware('permission:program-list');
+    Route::get('/programs/print', [ProgramController::class, 'print'])
+        ->name('programs.print')
+        ->middleware('permission:program-list');
 
     // Sections
     Route::get('/sections', [SectionController::class, 'index'])
@@ -170,6 +215,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::delete('/sections/{section}', [SectionController::class, 'destroy'])
         ->name('sections.destroy')
         ->middleware('permission:section-delete');
+    Route::get('/sections/search', [SectionController::class, 'search'])
+        ->name('sections.search')
+        ->middleware('permission:section-list');
+    Route::get('/sections/export', [SectionController::class, 'export'])
+        ->name('sections.export')
+        ->middleware('permission:section-list');
+    Route::get('/sections/print', [SectionController::class, 'print'])
+        ->name('sections.print')
+        ->middleware('permission:section-list');
 
     // Subjects
     Route::get('/subjects', [SubjectController::class, 'index'])
@@ -193,6 +247,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy'])
         ->name('subjects.destroy')
         ->middleware('permission:subject-delete');
+    Route::get('/subjects/search', [SubjectController::class, 'search'])
+        ->name('subjects.search')
+        ->middleware('permission:subject-list');
+    Route::get('/subjects/export', [SubjectController::class, 'export'])
+        ->name('subjects.export')
+        ->middleware('permission:subject-list');
+    Route::get('/subjects/print', [SubjectController::class, 'print'])
+        ->name('subjects.print')
+        ->middleware('permission:subject-list');
 
     // Shifts
     Route::get('/shifts', [ShiftController::class, 'index'])
@@ -216,6 +279,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::delete('/shifts/{shift}', [ShiftController::class, 'destroy'])
         ->name('shifts.destroy')
         ->middleware('permission:shift-delete');
+    Route::get('/shifts/search', [ShiftController::class, 'search'])
+        ->name('shifts.search')
+        ->middleware('permission:shift-list');
+    Route::get('/shifts/export', [ShiftController::class, 'export'])
+        ->name('shifts.export')
+        ->middleware('permission:shift-list');
+    Route::get('/shifts/print', [ShiftController::class, 'print'])
+        ->name('shifts.print')
+        ->middleware('permission:shift-list');
 
     // Groups
     Route::get('/groups', [GroupController::class, 'index'])
@@ -239,6 +311,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::delete('/groups/{group}', [GroupController::class, 'destroy'])
         ->name('groups.destroy')
         ->middleware('permission:group-delete');
+    Route::get('/groups/search', [GroupController::class, 'search'])
+        ->name('groups.search')
+        ->middleware('permission:group-list');
+    Route::get('/groups/export', [GroupController::class, 'export'])
+        ->name('groups.export')
+        ->middleware('permission:group-list');
+    Route::get('/groups/print', [GroupController::class, 'print'])
+        ->name('groups.print')
+        ->middleware('permission:group-list');
 
     // Students
     Route::get('/students', [StudentController::class, 'index'])
@@ -265,6 +346,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::delete('/students/{student}', [StudentController::class, 'destroy'])
         ->name('students.destroy')
         ->middleware('permission:student-delete');
+    Route::get('/students/search', [StudentController::class, 'search'])
+        ->name('students.search')
+        ->middleware('permission:student-list');
+    Route::get('/students/export', [StudentController::class, 'export'])
+        ->name('students.export')
+        ->middleware('permission:student-list');
+    Route::get('/students/print', [StudentController::class, 'print'])
+        ->name('students.print')
+        ->middleware('permission:student-list');
 
     // Teachers
     Route::get('/teachers', [TeacherController::class, 'index'])
@@ -294,20 +384,26 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::post('/teachers/{teacher}/departments', [TeacherController::class, 'assignDepartments'])
         ->name('teachers.departments')
         ->middleware('permission:teacher-edit');
+    Route::get('/teachers/search', [TeacherController::class, 'search'])
+        ->name('teachers.search')
+        ->middleware('permission:teacher-list');
+    Route::get('/teachers/export', [TeacherController::class, 'export'])
+        ->name('teachers.export')
+        ->middleware('permission:teacher-list');
+    Route::get('/teachers/print', [TeacherController::class, 'print'])
+        ->name('teachers.print')
+        ->middleware('permission:teacher-list');
 
     // Routines
     Route::get('/routines', [RoutineController::class, 'index'])
         ->name('routines.index')
         ->middleware('permission:routine-list');
+    Route::get('/routines/create', [RoutineController::class, 'create'])
+        ->name('routines.create')
+        ->middleware('permission:routine-create');
     Route::post('/routines', [RoutineController::class, 'store'])
         ->name('routines.store')
         ->middleware('permission:routine-create');
-    Route::put('/routines/{routine}', [RoutineController::class, 'update'])
-        ->name('routines.update')
-        ->middleware('permission:routine-edit');
-    Route::delete('/routines/{routine}', [RoutineController::class, 'destroy'])
-        ->name('routines.destroy')
-        ->middleware('permission:routine-delete');
     Route::get('/routines/weekly', [RoutineController::class, 'weekly'])
         ->name('routines.weekly')
         ->middleware('permission:routine-list');
@@ -317,6 +413,27 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::get('/routines/student', [RoutineController::class, 'student'])
         ->name('routines.student')
         ->middleware('permission:routine-list');
+    Route::get('/routines/search', [RoutineController::class, 'search'])
+        ->name('routines.search')
+        ->middleware('permission:routine-list');
+    Route::get('/routines/export', [RoutineController::class, 'export'])
+        ->name('routines.export')
+        ->middleware('permission:routine-list');
+    Route::get('/routines/print', [RoutineController::class, 'print'])
+        ->name('routines.print')
+        ->middleware('permission:routine-list');
+    Route::get('/routines/{routine}', [RoutineController::class, 'show'])
+        ->name('routines.show')
+        ->middleware('permission:routine-list');
+    Route::get('/routines/{routine}/edit', [RoutineController::class, 'edit'])
+        ->name('routines.edit')
+        ->middleware('permission:routine-edit');
+    Route::put('/routines/{routine}', [RoutineController::class, 'update'])
+        ->name('routines.update')
+        ->middleware('permission:routine-edit');
+    Route::delete('/routines/{routine}', [RoutineController::class, 'destroy'])
+        ->name('routines.destroy')
+        ->middleware('permission:routine-delete');
 
     // Content Views
     Route::get('/content', [ContentController::class, 'listView'])
@@ -371,6 +488,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::post('/contents/{content}/comments', [ContentController::class, 'addComment'])
         ->name('contents.comments.store')
         ->middleware('permission:content-comment');
+    Route::get('/contents/search', [ContentController::class, 'search'])
+        ->name('contents.search')
+        ->middleware('permission:content-list');
+    Route::get('/contents/export', [ContentController::class, 'export'])
+        ->name('contents.export')
+        ->middleware('permission:content-list');
+    Route::get('/contents/print', [ContentController::class, 'print'])
+        ->name('contents.print')
+        ->middleware('permission:content-list');
 
     // Assignments
     Route::get('/assignments/by-section', [AssignmentController::class, 'bySection'])
@@ -403,17 +529,41 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::put('/assignments/{submission}/marks', [AssignmentController::class, 'marks'])
         ->name('assignments.review')
         ->middleware('permission:assignment-review');
+    Route::get('/assignments/search', [AssignmentController::class, 'search'])
+        ->name('assignments.search')
+        ->middleware('permission:assignment-list');
+    Route::get('/assignments/export', [AssignmentController::class, 'export'])
+        ->name('assignments.export')
+        ->middleware('permission:assignment-list');
+    Route::get('/assignments/print', [AssignmentController::class, 'print'])
+        ->name('assignments.print')
+        ->middleware('permission:assignment-list');
 
     // Exams
     Route::get('/exams', [ExamController::class, 'index'])
         ->name('exams.index')
         ->middleware('permission:exam-list');
+    Route::get('/exams/create', [ExamController::class, 'create'])
+        ->name('exams.create')
+        ->middleware('permission:exam-create');
     Route::post('/exams', [ExamController::class, 'store'])
         ->name('exams.store')
         ->middleware('permission:exam-create');
+    Route::get('/exams/search', [ExamController::class, 'search'])
+        ->name('exams.search')
+        ->middleware('permission:exam-list');
+    Route::get('/exams/export', [ExamController::class, 'export'])
+        ->name('exams.export')
+        ->middleware('permission:exam-list');
+    Route::get('/exams/print', [ExamController::class, 'print'])
+        ->name('exams.print')
+        ->middleware('permission:exam-list');
     Route::get('/exams/{exam}', [ExamController::class, 'show'])
         ->name('exams.show')
         ->middleware('permission:exam-list');
+    Route::get('/exams/{exam}/edit', [ExamController::class, 'edit'])
+        ->name('exams.edit')
+        ->middleware('permission:exam-edit');
     Route::put('/exams/{exam}', [ExamController::class, 'update'])
         ->name('exams.update')
         ->middleware('permission:exam-edit');
@@ -434,6 +584,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::put('/marks/{mark}', [MarksEntryController::class, 'update'])
         ->name('marks.update')
         ->middleware('permission:marks-entry');
+    Route::get('/marks/search', [MarksEntryController::class, 'search'])
+        ->name('marks.search')
+        ->middleware('permission:marks-entry');
+    Route::get('/marks/export', [MarksEntryController::class, 'export'])
+        ->name('marks.export')
+        ->middleware('permission:marks-entry');
+    Route::get('/marks/print', [MarksEntryController::class, 'print'])
+        ->name('marks.print')
+        ->middleware('permission:marks-entry');
 
     // Marks Approval
     Route::prefix('marks/approval')->name('marks.approval.')->middleware('permission:marks-approve')->group(function (): void {
@@ -446,6 +605,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
         Route::post('/{mark}/reset', [MarksApprovalController::class, 'reset'])
             ->name('reset');
     });
+    Route::get('/marks/approval/search', [MarksApprovalController::class, 'search'])
+        ->name('marks.approval.search')
+        ->middleware('permission:marks-approve');
+    Route::get('/marks/approval/export', [MarksApprovalController::class, 'export'])
+        ->name('marks.approval.export')
+        ->middleware('permission:marks-approve');
+    Route::get('/marks/approval/print', [MarksApprovalController::class, 'print'])
+        ->name('marks.approval.print')
+        ->middleware('permission:marks-approve');
 });
 
 // Attendance Routes
@@ -472,5 +640,14 @@ Route::middleware(['auth'])->prefix('attendance')->name('attendance.')->group(fu
 
     Route::get('/history', [AttendanceController::class, 'history'])
         ->name('history')
+        ->middleware('permission:attendance-list');
+    Route::get('/search', [AttendanceController::class, 'search'])
+        ->name('search')
+        ->middleware('permission:attendance-list');
+    Route::get('/export', [AttendanceController::class, 'export'])
+        ->name('export')
+        ->middleware('permission:attendance-list');
+    Route::get('/print', [AttendanceController::class, 'print'])
+        ->name('print')
         ->middleware('permission:attendance-list');
 });

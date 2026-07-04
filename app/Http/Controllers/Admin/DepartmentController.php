@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\UpdateDepartmentRequest;
 use App\Models\Department;
 use App\Services\DepartmentService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DepartmentController extends Controller
@@ -63,5 +64,20 @@ class DepartmentController extends Controller
 
         return redirect()->route('admin.departments.index')
             ->with('success', 'Department deleted successfully.');
+    }
+
+    public function search(Request $request): View
+    {
+        return $this->index();
+    }
+
+    public function export(): RedirectResponse
+    {
+        return redirect()->route('admin.departments.index')->with('info', 'Export functionality coming soon.');
+    }
+
+    public function print(): View
+    {
+        return $this->index();
     }
 }

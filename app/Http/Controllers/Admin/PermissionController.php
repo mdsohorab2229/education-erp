@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\StorePermissionRequest;
 use App\Http\Requests\Admin\UpdatePermissionRequest;
 use App\Services\PermissionService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Permission;
 
@@ -60,5 +61,20 @@ class PermissionController extends Controller
         $this->permissionService->delete($permission->id);
 
         return redirect()->route('admin.permissions.index')->with('success', 'Permission deleted successfully.');
+    }
+
+    public function search(Request $request): View
+    {
+        return $this->index();
+    }
+
+    public function export(): RedirectResponse
+    {
+        return redirect()->route('admin.permissions.index')->with('info', 'Export functionality coming soon.');
+    }
+
+    public function print(): View
+    {
+        return $this->index();
     }
 }

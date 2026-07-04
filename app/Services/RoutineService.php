@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Interfaces\Repositories\RoutineRepositoryInterface;
-use App\Models\Routine;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -20,7 +19,7 @@ class RoutineService
         return $this->repository->all();
     }
 
-    public function create(array $data): Routine
+    public function create(array $data): mixed
     {
         $this->conflictDetection->checkTeacherConflict(
             (int) $data['teacher_id'],
@@ -43,12 +42,12 @@ class RoutineService
             $data['end_time'],
         );
 
-        return DB::transaction(function () use ($data): Routine {
+        return DB::transaction(function () use ($data): mixed {
             return $this->repository->create($data);
         });
     }
 
-    public function update(int $id, array $data): Routine
+    public function update(int $id, array $data): mixed
     {
         $routine = $this->repository->findById($id);
 
@@ -67,7 +66,7 @@ class RoutineService
         $this->conflictDetection->checkRoomConflict($roomId, $dayOfWeek, $startTime, $endTime, $id);
         $this->conflictDetection->checkSectionTimeOverlap($sectionId, $dayOfWeek, $startTime, $endTime, $id);
 
-        return DB::transaction(function () use ($id, $data): Routine {
+        return DB::transaction(function () use ($id, $data): mixed {
             return $this->repository->update($id, $data);
         });
     }
@@ -79,7 +78,7 @@ class RoutineService
         });
     }
 
-    public function findById(int $id): ?Routine
+    public function findById(int $id): mixed
     {
         return $this->repository->findById($id);
     }

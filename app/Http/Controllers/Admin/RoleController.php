@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\UpdateRoleRequest;
 use App\Services\PermissionService;
 use App\Services\RoleService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
@@ -67,5 +68,20 @@ class RoleController extends Controller
         $this->roleService->delete($role->id);
 
         return redirect()->route('admin.roles.index')->with('success', 'Role deleted successfully.');
+    }
+
+    public function search(Request $request): View
+    {
+        return $this->index();
+    }
+
+    public function export(): RedirectResponse
+    {
+        return redirect()->route('admin.roles.index')->with('info', 'Export functionality coming soon.');
+    }
+
+    public function print(): View
+    {
+        return $this->index();
     }
 }

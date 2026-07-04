@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Interfaces\Repositories\DepartmentRepositoryInterface;
-use App\Models\Department;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -19,19 +18,19 @@ class DepartmentService
         return $this->repository->all();
     }
 
-    public function findById(int $id): ?Department
+    public function findById(int $id): mixed
     {
         return $this->repository->findById($id);
     }
 
-    public function create(array $data): Department
+    public function create(array $data): mixed
     {
-        return DB::transaction(fn(): Department => $this->repository->create($data));
+        return DB::transaction(fn(): mixed => $this->repository->create($data));
     }
 
-    public function update(int $id, array $data): Department
+    public function update(int $id, array $data): mixed
     {
-        return DB::transaction(fn(): Department => $this->repository->update($id, $data));
+        return DB::transaction(fn(): mixed => $this->repository->update($id, $data));
     }
 
     public function delete(int $id): void
