@@ -45,6 +45,8 @@ class ExamResource extends JsonResource
             'end_date' => $this->end_date?->format('Y-m-d'),
             'status' => $this->status,
             'total_subjects' => $this->whenCounted('examSubjects', fn () => $this->exam_subjects_count),
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
 }

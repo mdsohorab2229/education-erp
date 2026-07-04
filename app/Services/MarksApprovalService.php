@@ -6,6 +6,7 @@ namespace App\Services;
 use App\Exceptions\InvalidApprovalStateException;
 use App\Interfaces\Repositories\MarkRepositoryInterface;
 use App\Models\Mark;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -24,17 +25,8 @@ class MarksApprovalService
     public function approve(int $markId, int $userId): Mark
     {
         return DB::transaction(function () use ($markId, $userId): Mark {
-            $mark = $this->markRepository->withRelations($markId);
-
-            if (!$mark) {
-                throw new \RuntimeException("Mark with ID {$markId} not found.");
-            }
-
-            if ($mark->approval_status !== self::STATUS_PENDING) {
-                throw new InvalidApprovalStateException(
-                    "Cannot approve mark with status '{$mark->approval_status}'. Only pending marks can be approved."
-                );
-            }
+            $mark = $this->findMarkOrFail($markId);
+            $this->assertStatusIs($mark, self::STATUS_PENDING);
 
             return $this->markRepository->update($markId, [
                 'approval_status' => self::STATUS_APPROVED,
@@ -47,17 +39,8 @@ class MarksApprovalService
     public function reject(int $markId, int $userId, string $remark): Mark
     {
         return DB::transaction(function () use ($markId, $userId, $remark): Mark {
-            $mark = $this->markRepository->withRelations($markId);
-
-            if (!$mark) {
-                throw new \RuntimeException("Mark with ID {$markId} not found.");
-            }
-
-            if ($mark->approval_status !== self::STATUS_PENDING) {
-                throw new InvalidApprovalStateException(
-                    "Cannot reject mark with status '{$mark->approval_status}'. Only pending marks can be rejected."
-                );
-            }
+            $mark = $this->findMarkOrFail($markId);
+            $this->assertStatusIs($mark, self::STATUS_PENDING);
 
             return $this->markRepository->update($markId, [
                 'approval_status' => self::STATUS_REJECTED,
@@ -71,17 +54,8 @@ class MarksApprovalService
     public function reset(int $markId): Mark
     {
         return DB::transaction(function () use ($markId): Mark {
-            $mark = $this->markRepository->withRelations($markId);
-
-            if (!$mark) {
-                throw new \RuntimeException("Mark with ID {$markId} not found.");
-            }
-
-            if ($mark->approval_status === self::STATUS_PENDING) {
-                throw new InvalidApprovalStateException(
-                    "Cannot reset mark with status 'pending'. Only approved or rejected marks can be reset."
-                );
-            }
+            $mark = $this->findMarkOrFail($markId);
+            $this->assertStatusIsNot($mark, self::STATUS_PENDING);
 
             return $this->markRepository->update($markId, [
                 'approval_status' => self::STATUS_PENDING,
@@ -95,5 +69,39 @@ class MarksApprovalService
     public function pendingList(): Collection
     {
         return $this->markRepository->pendingApproval();
+    }
+
+    public function pendingListPaginated(int $perPage = 50): LengthAwarePaginator
+    {
+        return $this->markRepository->pendingApprovalPaginated($perPage);
+    }
+
+    private function findMarkOrFail(int $markId): Mark
+    {
+        $mark = $this->markRepository->withRelations($markId);
+
+        if (!$mark) {
+            throw new \RuntimeException(__('examination.mark_not_found'));
+        }
+
+        return $mark;
+    }
+
+    private function assertStatusIs(Mark $mark, string $status): void
+    {
+        if ($mark->approval_status !== $status) {
+            throw new InvalidApprovalStateException(
+                __('examination.approval_invalid_state', ['status' => $mark->approval_status])
+            );
+        }
+    }
+
+    private function assertStatusIsNot(Mark $mark, string $status): void
+    {
+        if ($mark->approval_status === $status) {
+            throw new InvalidApprovalStateException(
+                __('examination.approval_invalid_state', ['status' => $mark->approval_status])
+            );
+        }
     }
 }

@@ -6,6 +6,7 @@ namespace App\Services;
 use App\Interfaces\Repositories\ExamSubjectRepositoryInterface;
 use App\Interfaces\Repositories\MarkRepositoryInterface;
 use App\Models\Mark;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -92,15 +93,19 @@ class MarksEntryService
         return $this->markRepository->byExam($examId);
     }
 
+    public function getExamMarksPaginated(int $examId, int $perPage = 50): LengthAwarePaginator
+    {
+        return $this->markRepository->byExamPaginated($examId, $perPage);
+    }
+
     public function loadStudents(int $examSubjectId): array
     {
         $examSubject = $this->examSubjectRepository->withSubject($examSubjectId);
 
         if (!$examSubject) {
-            throw new \RuntimeException("Exam subject with ID {$examSubjectId} not found.");
+            throw new \RuntimeException(__('examination.exam_subject_not_found'));
         }
 
-        $examSubject->load('exam.section');
         $marks = $this->markRepository->byExamSubject($examSubjectId);
 
         return [

@@ -16,12 +16,14 @@ class ExamTypeRepository implements ExamTypeRepositoryInterface
 
     public function all(): Collection
     {
-        return $this->model->all();
+        return $this->model->with(['createdBy', 'updatedBy'])->get();
     }
 
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
-        return $this->model->orderBy('created_at', 'desc')->paginate($perPage);
+        return $this->model->with(['createdBy', 'updatedBy'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
     }
 
     public function create(array $data): ExamType

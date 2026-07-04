@@ -29,6 +29,7 @@ class ExamRepository implements ExamRepositoryInterface
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return $this->model->with(self::EAGER_LOADS)
+            ->withCount('examSubjects')
             ->orderBy('start_date', 'desc')
             ->paginate($perPage);
     }

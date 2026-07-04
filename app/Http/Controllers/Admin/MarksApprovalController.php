@@ -9,6 +9,7 @@ use App\Http\Resources\MarkResource;
 use App\Http\Responses\ApiResponse;
 use App\Services\MarksApprovalService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class MarksApprovalController extends Controller
 {
@@ -18,19 +19,32 @@ class MarksApprovalController extends Controller
         private readonly MarksApprovalService $service,
     ) {}
 
-    public function pending(): JsonResponse
+    public function pending(Request $request): JsonResponse
     {
-        $marks = $this->service->pendingList();
+        $perPage = (int) $request->query('per_page', 50);
+        $marks = $this->service->pendingListPaginated($perPage);
 
         return $this->success(
             __('examination.pending_retrieved'),
             MarkResource::collection($marks),
+            [
+                'current_page' => $marks->currentPage(),
+                'last_page' => $marks->lastPage(),
+                'per_page' => $marks->perPage(),
+                'total' => $marks->total(),
+            ],
         );
     }
 
     public function approve(MarksApprovalRequest $request, int $id): JsonResponse
     {
-        $mark = $this->service->approve($id, (int) $request->user()->id);
+        try {
+            $mark = $this->service->approve($id, (int) $request->user()->id);
+        } catch (\App\Exceptions\InvalidApprovalStateException $e) {
+            return $this->error($e->getMessage(), 422);
+        } catch (\RuntimeException $e) {
+            return $this->notFound($e->getMessage());
+        }
 
         return $this->success(
             __('examination.approval_approved'),
@@ -40,11 +54,17 @@ class MarksApprovalController extends Controller
 
     public function reject(MarksApprovalRequest $request, int $id): JsonResponse
     {
-        $mark = $this->service->reject(
-            $id,
-            (int) $request->user()->id,
-            $request->input('remark'),
-        );
+        try {
+            $mark = $this->service->reject(
+                $id,
+                (int) $request->user()->id,
+                $request->input('remark'),
+            );
+        } catch (\App\Exceptions\InvalidApprovalStateException $e) {
+            return $this->error($e->getMessage(), 422);
+        } catch (\RuntimeException $e) {
+            return $this->notFound($e->getMessage());
+        }
 
         return $this->success(
             __('examination.approval_rejected'),
@@ -54,7 +74,13 @@ class MarksApprovalController extends Controller
 
     public function reset(int $id): JsonResponse
     {
-        $mark = $this->service->reset($id);
+        try {
+            $mark = $this->service->reset($id);
+        } catch (\App\Exceptions\InvalidApprovalStateException $e) {
+            return $this->error($e->getMessage(), 422);
+        } catch (\RuntimeException $e) {
+            return $this->notFound($e->getMessage());
+        }
 
         return $this->success(
             __('examination.approval_reset'),

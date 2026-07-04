@@ -34,6 +34,7 @@ class MarkRepository implements MarkRepositoryInterface
         'approved_at',
         'remark',
         'updated_by',
+        'updated_at',
     ];
 
     public function __construct(
@@ -46,7 +47,16 @@ class MarkRepository implements MarkRepositoryInterface
             return;
         }
 
-        $this->model->upsert($rows, self::UNIQUE_BY, self::UPDATE_COLUMNS);
+        $now = now();
+        $processed = [];
+
+        foreach ($rows as $row) {
+            $row['updated_at'] = $now;
+            $row['created_at'] ??= $now;
+            $processed[] = $row;
+        }
+
+        $this->model->upsert($processed, self::UNIQUE_BY, self::UPDATE_COLUMNS);
     }
 
     public function update(int $id, array $data): Mark
@@ -78,6 +88,14 @@ class MarkRepository implements MarkRepositoryInterface
             ->get();
     }
 
+    public function byExamPaginated(int $examId, int $perPage = 50): LengthAwarePaginator
+    {
+        return $this->model->with(self::EAGER_LOADS)
+            ->whereHas('examSubject', fn ($q) => $q->where('exam_id', $examId))
+            ->orderBy('id')
+            ->paginate($perPage);
+    }
+
     public function byStudent(int $studentId): Collection
     {
         return $this->model->with(self::EAGER_LOADS)
@@ -100,6 +118,14 @@ class MarkRepository implements MarkRepositoryInterface
             ->where('approval_status', 'pending')
             ->orderBy('created_at')
             ->get();
+    }
+
+    public function pendingApprovalPaginated(int $perPage = 50): LengthAwarePaginator
+    {
+        return $this->model->with(self::EAGER_LOADS)
+            ->where('approval_status', 'pending')
+            ->orderBy('created_at')
+            ->paginate($perPage);
     }
 
     public function approved(): Collection

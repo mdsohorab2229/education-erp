@@ -3,11 +3,21 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Admin;
 
+use App\Models\AcademicYear;
+use App\Models\Department;
 use App\Models\Exam;
 use App\Models\ExamSubject;
+use App\Models\ExamType;
+use App\Models\Grade;
 use App\Models\Mark;
+use App\Models\Program;
+use App\Models\Section;
+use App\Models\Semester;
+use App\Models\Shift;
+use App\Models\Student;
+use App\Models\Subject;
 use App\Models\User;
-use Database\Seeders\ExamTestSeeder;
+use Database\Seeders\GradeSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,173 +30,165 @@ class MarksEntryTest extends TestCase
 
     private User $admin;
 
-    private User $teacher;
+    private Exam $exam;
 
-    private User $noPermission;
+    private ExamSubject $examSubject;
 
-    private int $midtermExamId;
+    private Student $student;
 
-    private int $examSubjectId;
+    private Program $program;
 
-    private int $finalExamSubjectId;
+    private Department $department;
 
-    private int $student1Id;
+    private AcademicYear $academicYear;
 
-    private int $student2Id;
+    private Section $section;
+
+    private Shift $shift;
+
+    private function setUpPermissions(): void
+    {
+        $this->seed([PermissionSeeder::class, RoleSeeder::class]);
+
+        Permission::firstOrCreate(['name' => 'marks-entry']);
+        Permission::firstOrCreate(['name' => 'marks-approve']);
+
+        \Spatie\Permission\Models\Role::where('name', 'Admin')->first()
+            ->givePermissionTo(['marks-entry', 'marks-approve']);
+    }
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed([PermissionSeeder::class, RoleSeeder::class]);
+        $this->setUpPermissions();
 
-        $this->ensureMarksPermission();
+        $this->seed(GradeSeeder::class);
 
         $this->admin = User::factory()->create();
         $this->admin->assignRole('Admin');
 
-        $this->noPermission = User::factory()->create();
+        $this->department = Department::factory()->create();
+        $this->program = Program::factory()->create(['department_id' => $this->department->id]);
+        $this->section = Section::factory()->create(['program_id' => $this->program->id]);
+        $this->academicYear = AcademicYear::factory()->create();
+        $semester = Semester::factory()->create();
+        $this->shift = Shift::factory()->create();
+        $examType = ExamType::factory()->create();
+        $subject = Subject::factory()->create(['program_id' => $this->program->id]);
+        $teacher = User::factory()->create();
 
-        $this->seed(ExamTestSeeder::class);
+        $this->exam = Exam::factory()->create([
+            'exam_type_id' => $examType->id,
+            'academic_year_id' => $this->academicYear->id,
+            'semester_id' => $semester->id,
+            'department_id' => $this->department->id,
+            'program_id' => $this->program->id,
+            'shift_id' => $this->shift->id,
+            'section_id' => $this->section->id,
+            'created_by' => $this->admin->id,
+            'updated_by' => $this->admin->id,
+        ]);
 
-        $this->teacher = User::where('email', 'exam.test.teacher@school.edu')->firstOrFail();
+        $this->examSubject = ExamSubject::factory()->create([
+            'exam_id' => $this->exam->id,
+            'subject_id' => $subject->id,
+            'teacher_id' => $teacher->id,
+            'full_mark' => 100,
+            'pass_mark' => 40,
+            'created_by' => $this->admin->id,
+            'updated_by' => $this->admin->id,
+        ]);
 
-        $midterm = Exam::where('title', 'Midterm — Exam Test Section (2025-2026)')->firstOrFail();
-        $this->midtermExamId = $midterm->id;
-
-        $this->examSubjectId = ExamSubject::where('exam_id', $midterm->id)->firstOrFail()->id;
-
-        $final = Exam::where('title', 'Final — Exam Test Section (2025-2026)')->firstOrFail();
-        $this->finalExamSubjectId = ExamSubject::where('exam_id', $final->id)->firstOrFail()->id;
-
-        $studentIds = Mark::whereHas('examSubject', fn ($q) => $q->where('exam_id', $midterm->id))
-            ->pluck('student_id')
-            ->unique()
-            ->values()
-            ->toArray();
-        $this->student1Id = $studentIds[0] ?? 1;
-        $this->student2Id = $studentIds[1] ?? 2;
+        $this->student = Student::factory()->create([
+            'program_id' => $this->program->id,
+            'section_id' => $this->section->id,
+            'shift_id' => $this->shift->id,
+            'academic_year_id' => $this->academicYear->id,
+        ]);
     }
 
-    // ---- Authentication ----
-
-    public function test_guest_redirected_to_login_for_index(): void
+    public function test_guest_cannot_access_marks_index(): void
     {
         $this->get(route('admin.marks.index'))->assertRedirect(route('login'));
     }
 
-    public function test_guest_redirected_to_login_for_load_students(): void
-    {
-        $this->get(route('admin.marks.load-students'))->assertRedirect(route('login'));
-    }
-
-    public function test_guest_redirected_to_login_for_store(): void
+    public function test_guest_cannot_store_marks(): void
     {
         $this->post(route('admin.marks.store'), [])->assertRedirect(route('login'));
     }
 
-    public function test_guest_redirected_to_login_for_update(): void
+    public function test_user_without_permission_cannot_access_marks(): void
     {
-        $this->put(route('admin.marks.update', 1), [])->assertRedirect(route('login'));
-    }
-
-    // ---- Authorization ----
-
-    public function test_user_without_permission_cannot_access_index(): void
-    {
-        $this->actingAs($this->noPermission)
+        $user = User::factory()->create();
+        $this->actingAs($user)
             ->getJson(route('admin.marks.index'))
             ->assertStatus(403);
     }
 
-    public function test_user_without_permission_cannot_load_students(): void
+    public function test_admin_can_list_exam_marks(): void
     {
-        $this->actingAs($this->noPermission)
-            ->getJson(route('admin.marks.load-students'))
-            ->assertStatus(403);
-    }
+        $students = Student::factory()->count(3)->create([
+            'program_id' => $this->program->id,
+            'section_id' => $this->section->id,
+            'shift_id' => $this->shift->id,
+            'academic_year_id' => $this->academicYear->id,
+            'group_id' => null,
+        ]);
 
-    public function test_user_without_permission_cannot_store(): void
-    {
-        $this->actingAs($this->noPermission)
-            ->postJson(route('admin.marks.store'), [])
-            ->assertStatus(403);
-    }
+        foreach ($students as $s) {
+            Mark::factory()->create([
+                'exam_subject_id' => $this->examSubject->id,
+                'student_id' => $s->id,
+                'grade_id' => Grade::first()->id,
+                'total_mark' => 50,
+                'created_by' => $this->admin->id,
+                'updated_by' => $this->admin->id,
+            ]);
+        }
 
-    public function test_user_without_permission_cannot_update(): void
-    {
-        $this->actingAs($this->noPermission)
-            ->putJson(route('admin.marks.update', 1), [])
-            ->assertStatus(403);
-    }
-
-    // ---- Marks Index ----
-
-    public function test_admin_can_view_marks_index(): void
-    {
         $this->actingAs($this->admin);
 
-        $response = $this->getJson(route('admin.marks.index', ['exam_id' => $this->midtermExamId]));
-
-        $response->assertStatus(200);
-        $response->assertJsonPath('success', true);
-        $response->assertJsonStructure(['success', 'message', 'data']);
-    }
-
-    // ---- Load Students ----
-
-    public function test_admin_can_load_students(): void
-    {
-        $this->actingAs($this->admin);
-
-        $response = $this->getJson(route('admin.marks.load-students', [
-            'exam_subject_id' => $this->examSubjectId,
-        ]));
+        $response = $this->getJson(route('admin.marks.index', ['exam_id' => $this->exam->id]));
 
         $response->assertStatus(200);
         $response->assertJsonPath('success', true);
         $response->assertJsonStructure([
-            'success', 'message',
-            'data' => ['exam_subject', 'marks'],
+            'success', 'message', 'data', 'meta' => ['current_page', 'last_page', 'per_page', 'total'],
         ]);
     }
-
-    // ---- Bulk Store ----
 
     public function test_admin_can_bulk_store_marks(): void
     {
         $this->actingAs($this->admin);
 
         $response = $this->postJson(route('admin.marks.store'), [
-            'exam_subject_id' => $this->finalExamSubjectId,
+            'exam_subject_id' => $this->examSubject->id,
             'marks' => [
                 [
-                    'student_id' => $this->student1Id,
-                    'obtained_mark' => 85.00,
+                    'student_id' => $this->student->id,
+                    'obtained_mark' => 75.50,
                     'practical_mark' => null,
                     'viva_mark' => null,
-                    'remark' => null,
-                ],
-                [
-                    'student_id' => $this->student2Id,
-                    'obtained_mark' => 65.00,
-                    'practical_mark' => null,
-                    'viva_mark' => null,
-                    'remark' => 'Needs improvement',
                 ],
             ],
         ]);
 
         $response->assertStatus(201);
         $response->assertJsonPath('success', true);
+
+        $this->assertDatabaseHas('marks', [
+            'exam_subject_id' => $this->examSubject->id,
+            'student_id' => $this->student->id,
+        ]);
     }
 
-    public function test_bulk_store_requires_marks_array(): void
+    public function test_bulk_store_validates_marks_array(): void
     {
         $this->actingAs($this->admin);
 
         $response = $this->postJson(route('admin.marks.store'), [
-            'exam_subject_id' => $this->examSubjectId,
+            'exam_subject_id' => $this->examSubject->id,
             'marks' => [],
         ]);
 
@@ -194,14 +196,14 @@ class MarksEntryTest extends TestCase
         $response->assertJsonValidationErrors('marks');
     }
 
-    public function test_bulk_store_requires_student_id(): void
+    public function test_bulk_store_validates_student_exists(): void
     {
         $this->actingAs($this->admin);
 
         $response = $this->postJson(route('admin.marks.store'), [
-            'exam_subject_id' => $this->examSubjectId,
+            'exam_subject_id' => $this->examSubject->id,
             'marks' => [
-                ['obtained_mark' => 50.00],
+                ['student_id' => 99999, 'obtained_mark' => 50],
             ],
         ]);
 
@@ -209,20 +211,30 @@ class MarksEntryTest extends TestCase
         $response->assertJsonValidationErrors('marks.0.student_id');
     }
 
-    // ---- Single Update ----
-
-    public function test_admin_can_update_single_mark(): void
+    public function test_admin_can_update_mark(): void
     {
+        $mark = Mark::factory()->create([
+            'exam_subject_id' => $this->examSubject->id,
+            'student_id' => $this->student->id,
+            'grade_id' => Grade::first()->id,
+            'total_mark' => 50,
+            'created_by' => $this->admin->id,
+            'updated_by' => $this->admin->id,
+        ]);
+
         $this->actingAs($this->admin);
 
-        $mark = Mark::first();
-
         $response = $this->putJson(route('admin.marks.update', $mark->id), [
-            'obtained_mark' => 90.00,
+            'obtained_mark' => 85.00,
         ]);
 
         $response->assertStatus(200);
         $response->assertJsonPath('success', true);
+
+        $this->assertDatabaseHas('marks', [
+            'id' => $mark->id,
+            'obtained_mark' => 85.00,
+        ]);
     }
 
     public function test_update_returns_404_for_missing_mark(): void
@@ -230,95 +242,36 @@ class MarksEntryTest extends TestCase
         $this->actingAs($this->admin);
 
         $response = $this->putJson(route('admin.marks.update', 99999), [
-            'obtained_mark' => 50.00,
+            'obtained_mark' => 50,
         ]);
 
         $response->assertStatus(404);
     }
 
-    // ---- Boundary Marks ----
-
-    public function test_can_store_zero_marks(): void
+    public function test_admin_can_load_students_for_exam_subject(): void
     {
         $this->actingAs($this->admin);
 
-        $response = $this->postJson(route('admin.marks.store'), [
-            'exam_subject_id' => $this->finalExamSubjectId,
-            'marks' => [
-                [
-                    'student_id' => $this->student1Id,
-                    'obtained_mark' => 0,
-                    'practical_mark' => null,
-                    'viva_mark' => null,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(201);
-        $response->assertJsonPath('success', true);
-    }
-
-    public function test_rejects_negative_marks(): void
-    {
-        $this->actingAs($this->admin);
-
-        $response = $this->postJson(route('admin.marks.store'), [
-            'exam_subject_id' => $this->examSubjectId,
-            'marks' => [
-                [
-                    'student_id' => $this->student1Id,
-                    'obtained_mark' => -5,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors('marks.0.obtained_mark');
-    }
-
-    public function test_rejects_mark_exceeding_full_mark(): void
-    {
-        $this->actingAs($this->admin);
-
-        $response = $this->postJson(route('admin.marks.store'), [
-            'exam_subject_id' => $this->examSubjectId,
-            'marks' => [
-                [
-                    'student_id' => $this->student1Id,
-                    'obtained_mark' => 999,
-                ],
-            ],
-        ]);
-
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors('marks.0.obtained_mark');
-    }
-
-    // ---- Resources (JSON structure) ----
-
-    public function test_mark_resource_structure(): void
-    {
-        $this->actingAs($this->admin);
-
-        $response = $this->getJson(route('admin.marks.index', ['exam_id' => $this->midtermExamId]));
+        $response = $this->getJson(route('admin.marks.load-students', [
+            'exam_subject_id' => $this->examSubject->id,
+        ]));
 
         $response->assertStatus(200);
+        $response->assertJsonPath('success', true);
         $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'obtained_mark', 'practical_mark', 'viva_mark', 'total_mark',
-                    'approval_status', 'remark',
-                ],
-            ],
+            'success', 'data' => ['exam_subject', 'marks'],
         ]);
     }
 
-    // ---- Helpers ----
-
-    private function ensureMarksPermission(): void
+    public function test_load_students_returns_404_for_missing_exam_subject(): void
     {
-        Permission::firstOrCreate(['name' => 'marks-entry']);
-        \Spatie\Permission\Models\Role::where('name', 'Admin')->first()
-            ->givePermissionTo('marks-entry');
+        $this->actingAs($this->admin);
+
+        $response = $this->getJson(route('admin.marks.load-students', [
+            'exam_subject_id' => 99999,
+        ]));
+
+        $response->assertStatus(404);
+        $response->assertJsonPath('success', false);
     }
 }

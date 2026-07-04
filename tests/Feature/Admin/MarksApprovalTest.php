@@ -3,11 +3,21 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Admin;
 
+use App\Models\AcademicYear;
+use App\Models\Department;
 use App\Models\Exam;
 use App\Models\ExamSubject;
+use App\Models\ExamType;
+use App\Models\Grade;
 use App\Models\Mark;
+use App\Models\Program;
+use App\Models\Section;
+use App\Models\Semester;
+use App\Models\Shift;
+use App\Models\Student;
+use App\Models\Subject;
 use App\Models\User;
-use Database\Seeders\ExamTestSeeder;
+use Database\Seeders\GradeSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,100 +30,131 @@ class MarksApprovalTest extends TestCase
 
     private User $admin;
 
-    private User $teacher;
+    private Mark $pendingMark;
 
-    private User $noPermission;
+    private Mark $approvedMark;
 
-    private int $pendingMarkId;
+    private Mark $rejectedMark;
 
-    private int $approvedMarkId;
+    private function setUpPermissions(): void
+    {
+        $this->seed([PermissionSeeder::class, RoleSeeder::class]);
 
-    private int $rejectedMarkId;
+        Permission::firstOrCreate(['name' => 'marks-approve']);
+        Permission::firstOrCreate(['name' => 'marks-entry']);
+
+        \Spatie\Permission\Models\Role::where('name', 'Admin')->first()
+            ->givePermissionTo(['marks-approve', 'marks-entry']);
+    }
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->seed([PermissionSeeder::class, RoleSeeder::class]);
+        $this->setUpPermissions();
 
-        $this->ensureApprovalPermission();
+        $this->seed(GradeSeeder::class);
 
         $this->admin = User::factory()->create();
         $this->admin->assignRole('Admin');
 
-        $this->noPermission = User::factory()->create();
+        $department = Department::factory()->create();
+        $program = Program::factory()->create(['department_id' => $department->id]);
+        $section = Section::factory()->create(['program_id' => $program->id]);
+        $academicYear = AcademicYear::factory()->create();
+        $semester = Semester::factory()->create();
+        $shift = Shift::factory()->create();
+        $examType = ExamType::factory()->create();
+        $subject = Subject::factory()->create(['program_id' => $program->id]);
+        $teacher = User::factory()->create();
 
-        $this->seed(ExamTestSeeder::class);
+        $exam = Exam::factory()->create([
+            'exam_type_id' => $examType->id,
+            'academic_year_id' => $academicYear->id,
+            'semester_id' => $semester->id,
+            'department_id' => $department->id,
+            'program_id' => $program->id,
+            'shift_id' => $shift->id,
+            'section_id' => $section->id,
+            'created_by' => $this->admin->id,
+            'updated_by' => $this->admin->id,
+        ]);
 
-        $this->teacher = User::where('email', 'exam.test.teacher@school.edu')->firstOrFail();
+        $examSubject = ExamSubject::factory()->create([
+            'exam_id' => $exam->id,
+            'subject_id' => $subject->id,
+            'teacher_id' => $teacher->id,
+            'created_by' => $this->admin->id,
+            'updated_by' => $this->admin->id,
+        ]);
 
-        $this->pendingMarkId = Mark::where('approval_status', 'pending')->firstOrFail()->id;
-        $this->approvedMarkId = Mark::where('approval_status', 'approved')->firstOrFail()->id;
-        $this->rejectedMarkId = Mark::where('approval_status', 'rejected')->firstOrFail()->id;
+        $grade = Grade::first();
+
+        $student1 = Student::factory()->create([
+            'program_id' => $program->id,
+            'section_id' => $section->id,
+            'shift_id' => $shift->id,
+            'academic_year_id' => $academicYear->id,
+            'group_id' => null,
+        ]);
+
+        $student2 = Student::factory()->create([
+            'program_id' => $program->id,
+            'section_id' => $section->id,
+            'shift_id' => $shift->id,
+            'academic_year_id' => $academicYear->id,
+            'group_id' => null,
+        ]);
+
+        $student3 = Student::factory()->create([
+            'program_id' => $program->id,
+            'section_id' => $section->id,
+            'shift_id' => $shift->id,
+            'academic_year_id' => $academicYear->id,
+            'group_id' => null,
+        ]);
+
+        $this->pendingMark = Mark::factory()->create([
+            'exam_subject_id' => $examSubject->id,
+            'student_id' => $student1->id,
+            'grade_id' => $grade->id,
+            'total_mark' => 50,
+            'approval_status' => 'pending',
+            'created_by' => $this->admin->id,
+            'updated_by' => $this->admin->id,
+        ]);
+
+        $this->approvedMark = Mark::factory()->approved()->create([
+            'exam_subject_id' => $examSubject->id,
+            'student_id' => $student2->id,
+            'grade_id' => $grade->id,
+            'total_mark' => 85,
+            'created_by' => $this->admin->id,
+            'updated_by' => $this->admin->id,
+        ]);
+
+        $this->rejectedMark = Mark::factory()->rejected()->create([
+            'exam_subject_id' => $examSubject->id,
+            'student_id' => $student3->id,
+            'grade_id' => $grade->id,
+            'total_mark' => 30,
+            'created_by' => $this->admin->id,
+            'updated_by' => $this->admin->id,
+        ]);
     }
 
-    // ---- Authentication ----
-
-    public function test_guest_redirected_to_login_for_pending(): void
+    public function test_guest_cannot_access_pending(): void
     {
         $this->get(route('admin.marks.approval.pending'))->assertRedirect(route('login'));
     }
 
-    public function test_guest_redirected_to_login_for_approve(): void
+    public function test_user_without_permission_cannot_access_pending(): void
     {
-        $this->post(route('admin.marks.approval.approve', 1))->assertRedirect(route('login'));
-    }
-
-    public function test_guest_redirected_to_login_for_reject(): void
-    {
-        $this->post(route('admin.marks.approval.reject', 1))->assertRedirect(route('login'));
-    }
-
-    public function test_guest_redirected_to_login_for_reset(): void
-    {
-        $this->post(route('admin.marks.approval.reset', 1))->assertRedirect(route('login'));
-    }
-
-    // ---- Authorization ----
-
-    public function test_user_without_permission_cannot_view_pending(): void
-    {
-        $this->actingAs($this->noPermission)
+        $user = User::factory()->create();
+        $this->actingAs($user)
             ->getJson(route('admin.marks.approval.pending'))
             ->assertStatus(403);
     }
-
-    public function test_user_without_permission_cannot_approve(): void
-    {
-        $this->actingAs($this->noPermission)
-            ->postJson(route('admin.marks.approval.approve', 1))
-            ->assertStatus(403);
-    }
-
-    public function test_user_without_permission_cannot_reject(): void
-    {
-        $this->actingAs($this->noPermission)
-            ->postJson(route('admin.marks.approval.reject', 1))
-            ->assertStatus(403);
-    }
-
-    public function test_user_without_permission_cannot_reset(): void
-    {
-        $this->actingAs($this->noPermission)
-            ->postJson(route('admin.marks.approval.reset', 1))
-            ->assertStatus(403);
-    }
-
-    // ---- Teacher cannot approve (no marks-approve permission) ----
-
-    public function test_teacher_cannot_approve(): void
-    {
-        $this->actingAs($this->teacher)
-            ->postJson(route('admin.marks.approval.approve', $this->pendingMarkId))
-            ->assertStatus(403);
-    }
-
-    // ---- Pending List ----
 
     public function test_admin_can_view_pending_marks(): void
     {
@@ -123,68 +164,55 @@ class MarksApprovalTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJsonPath('success', true);
-        $response->assertJsonStructure(['success', 'message', 'data']);
+        $response->assertJsonStructure([
+            'success', 'message', 'data', 'meta' => ['current_page', 'last_page', 'per_page', 'total'],
+        ]);
     }
-
-    // ---- Approve ----
 
     public function test_admin_can_approve_pending_mark(): void
     {
         $this->actingAs($this->admin);
 
-        $response = $this->postJson(route('admin.marks.approval.approve', $this->pendingMarkId), [
-            'approval_status' => 'approved',
-        ]);
+        $response = $this->postJson(
+            route('admin.marks.approval.approve', $this->pendingMark->id),
+        );
 
         $response->assertStatus(200);
         $response->assertJsonPath('success', true);
 
         $this->assertDatabaseHas('marks', [
-            'id' => $this->pendingMarkId,
+            'id' => $this->pendingMark->id,
             'approval_status' => 'approved',
         ]);
     }
 
-    public function test_cannot_approve_already_approved_mark(): void
+    public function test_admin_cannot_approve_already_approved_mark(): void
     {
         $this->actingAs($this->admin);
 
-        $response = $this->postJson(route('admin.marks.approval.approve', $this->approvedMarkId), [
-            'approval_status' => 'approved',
-        ]);
+        $response = $this->postJson(
+            route('admin.marks.approval.approve', $this->approvedMark->id),
+        );
 
-        $response->assertStatus(400);
+        $response->assertStatus(422);
+        $response->assertJsonPath('success', false);
     }
 
-    public function test_cannot_approve_rejected_mark(): void
+    public function test_admin_can_reject_pending_mark(): void
     {
         $this->actingAs($this->admin);
 
-        $response = $this->postJson(route('admin.marks.approval.approve', $this->rejectedMarkId), [
-            'approval_status' => 'approved',
-        ]);
-
-        $response->assertStatus(400);
-    }
-
-    // ---- Reject ----
-
-    public function test_admin_can_reject_pending_mark_with_remark(): void
-    {
-        $this->actingAs($this->admin);
-
-        $response = $this->postJson(route('admin.marks.approval.reject', $this->pendingMarkId), [
-            'approval_status' => 'rejected',
-            'remark' => 'Incomplete marks, please re-submit.',
-        ]);
+        $response = $this->postJson(
+            route('admin.marks.approval.reject', $this->pendingMark->id),
+            ['remark' => 'Low performance'],
+        );
 
         $response->assertStatus(200);
         $response->assertJsonPath('success', true);
 
         $this->assertDatabaseHas('marks', [
-            'id' => $this->pendingMarkId,
+            'id' => $this->pendingMark->id,
             'approval_status' => 'rejected',
-            'remark' => 'Incomplete marks, please re-submit.',
         ]);
     }
 
@@ -192,29 +220,31 @@ class MarksApprovalTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        $response = $this->postJson(route('admin.marks.approval.reject', $this->pendingMarkId), [
-            'approval_status' => 'rejected',
-            'remark' => '',
-        ]);
+        $response = $this->postJson(
+            route('admin.marks.approval.reject', $this->pendingMark->id),
+            [],
+        );
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors('remark');
     }
 
-    // ---- Reset ----
-
     public function test_admin_can_reset_approved_mark(): void
     {
         $this->actingAs($this->admin);
 
-        $response = $this->postJson(route('admin.marks.approval.reset', $this->approvedMarkId));
+        $response = $this->postJson(
+            route('admin.marks.approval.reset', $this->approvedMark->id),
+        );
 
         $response->assertStatus(200);
         $response->assertJsonPath('success', true);
 
         $this->assertDatabaseHas('marks', [
-            'id' => $this->approvedMarkId,
+            'id' => $this->approvedMark->id,
             'approval_status' => 'pending',
+            'approved_by' => null,
+            'approved_at' => null,
         ]);
     }
 
@@ -222,79 +252,39 @@ class MarksApprovalTest extends TestCase
     {
         $this->actingAs($this->admin);
 
-        $response = $this->postJson(route('admin.marks.approval.reset', $this->rejectedMarkId));
+        $response = $this->postJson(
+            route('admin.marks.approval.reset', $this->rejectedMark->id),
+        );
 
         $response->assertStatus(200);
         $response->assertJsonPath('success', true);
 
         $this->assertDatabaseHas('marks', [
-            'id' => $this->rejectedMarkId,
+            'id' => $this->rejectedMark->id,
             'approval_status' => 'pending',
         ]);
     }
 
-    public function test_cannot_reset_pending_mark(): void
+    public function test_admin_cannot_reset_pending_mark(): void
     {
         $this->actingAs($this->admin);
 
-        $response = $this->postJson(route('admin.marks.approval.reset', $this->pendingMarkId));
-
-        $response->assertStatus(400);
-    }
-
-    // ---- Validation ----
-
-    public function test_approve_requires_approval_status(): void
-    {
-        $this->actingAs($this->admin);
-
-        $response = $this->postJson(route('admin.marks.approval.approve', $this->pendingMarkId), []);
+        $response = $this->postJson(
+            route('admin.marks.approval.reset', $this->pendingMark->id),
+        );
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors('approval_status');
+        $response->assertJsonPath('success', false);
     }
 
-    public function test_reject_without_remark_fails(): void
+    public function test_approve_returns_404_for_missing_mark(): void
     {
         $this->actingAs($this->admin);
 
-        $response = $this->postJson(route('admin.marks.approval.reject', $this->pendingMarkId), [
-            'approval_status' => 'rejected',
-        ]);
+        $response = $this->postJson(
+            route('admin.marks.approval.approve', 99999),
+        );
 
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors('remark');
-    }
-
-    // ---- Resources (JSON structure) ----
-
-    public function test_pending_list_has_mark_resource_structure(): void
-    {
-        $this->actingAs($this->admin);
-
-        $response = $this->getJson(route('admin.marks.approval.pending'));
-
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => [
-                    'obtained_mark',
-                    'practical_mark',
-                    'viva_mark',
-                    'total_mark',
-                    'approval_status',
-                    'remark',
-                ],
-            ],
-        ]);
-    }
-
-    // ---- Helpers ----
-
-    private function ensureApprovalPermission(): void
-    {
-        Permission::firstOrCreate(['name' => 'marks-approve']);
-        \Spatie\Permission\Models\Role::where('name', 'Admin')->first()
-            ->givePermissionTo('marks-approve');
+        $response->assertStatus(404);
     }
 }

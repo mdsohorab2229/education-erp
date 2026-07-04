@@ -69,6 +69,6 @@ class ExamSubjectRepository implements ExamSubjectRepositoryInterface
 
     public function withSubject(int $id): ?ExamSubject
     {
-        return $this->model->with(['exam', 'subject'])->find($id);
+        return $this->model->with(['exam.section', 'subject'])->find($id);
     }
 }

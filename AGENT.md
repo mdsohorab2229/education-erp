@@ -551,3 +551,123 @@ Finally generate:
 
 Before marking the module as COMPLETE, verify every item below.
 
+
+# Sidebar & Navigation Rules (Mandatory)
+
+Every new module MUST update the navigation automatically.
+
+Whenever a new module is implemented, AI MUST also update:
+
+- resources/views/admin/layouts/master.blade.php
+- Sidebar navigation
+- Breadcrumbs (if used)
+- Active menu highlighting
+- Permission-based visibility (@can)
+
+Every module MUST appear in the correct navigation section.
+
+Example:
+
+Academic Operations
+    Attendance
+    Routine
+    Digital Content
+    Assignment
+
+Examination
+    Exams
+    Marks Entry
+    Marks Approval
+
+Future modules must NEVER require manual sidebar updates.
+
+Failure to update navigation is considered an incomplete implementation.
+
+## Seeder Rules (Mandatory)
+
+Every new module MUST include
+
+- Factory
+- Demo Seeder
+- Test Seeder
+- DatabaseSeeder registration
+
+After implementation AI MUST verify
+
+php artisan migrate:fresh --seed
+
+passes without errors.
+## Permission Rules
+
+Every module MUST include
+
+PermissionSeeder
+RoleSeeder
+
+Sidebar MUST use
+
+@can()
+
+Route middleware MUST use
+
+permission:xxx
+
+Feature Tests MUST verify
+
+Guest
+
+Unauthorized User
+
+Authorized User
+## Route Rules
+
+Every new module MUST register
+
+CRUD Routes
+
+Search Routes
+
+AJAX Routes
+
+Print Routes
+
+Export Routes (future-ready)
+
+Sidebar links MUST match route names exactly.
+
+After route generation AI MUST verify
+
+php artisan route:list
+
+contains every generated route.
+## Module Completion Checklist (Mandatory)
+
+A module is NOT complete until ALL items below are finished.
+
+□ Migration
+□ Model
+□ Relationships
+□ Repository
+□ Service
+□ Form Requests
+□ Resources
+□ Controllers
+□ Routes
+□ Permissions
+□ RoleSeeder
+□ Sidebar Navigation
+□ Blade Views
+□ Alpine.js
+□ Axios
+□ Print View
+□ Mobile View
+□ Factory
+□ Demo Seeder
+□ Test Seeder
+□ DatabaseSeeder Registration
+□ Feature Tests
+□ Unit Tests (Business Logic)
+□ php artisan test passes
+□ php artisan migrate:fresh --seed passes
+□ php artisan optimize passes
+□ Final QA Report

@@ -13,9 +13,11 @@ interface MarkRepositoryInterface
     public function update(int $id, array $data): Mark;
     public function delete(int $id): bool;
     public function byExam(int $examId): Collection;
+    public function byExamPaginated(int $examId, int $perPage = 50): LengthAwarePaginator;
     public function byStudent(int $studentId): Collection;
     public function byExamSubject(int $examSubjectId): Collection;
     public function pendingApproval(): Collection;
+    public function pendingApprovalPaginated(int $perPage = 50): LengthAwarePaginator;
     public function approved(): Collection;
     public function rejected(): Collection;
     public function withRelations(int $id): ?Mark;

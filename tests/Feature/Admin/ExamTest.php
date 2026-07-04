@@ -156,15 +156,19 @@ class ExamTest extends TestCase
 
     public function test_admin_can_list_exams(): void
     {
-        Exam::factory()->count(3)->create([
-            'exam_type_id' => $this->examType->id,
-            'academic_year_id' => $this->academicYear->id,
-            'semester_id' => $this->semester->id,
-            'department_id' => $this->department->id,
-            'program_id' => $this->program->id,
-            'shift_id' => $this->shift->id,
-            'section_id' => $this->section->id,
-        ]);
+        Exam::factory()->count(3)
+            ->sequence(
+                fn ($seq) => ['start_date' => now()->addDays($seq->index)->format('Y-m-d')],
+            )
+            ->create([
+                'exam_type_id' => $this->examType->id,
+                'academic_year_id' => $this->academicYear->id,
+                'semester_id' => $this->semester->id,
+                'department_id' => $this->department->id,
+                'program_id' => $this->program->id,
+                'shift_id' => $this->shift->id,
+                'section_id' => $this->section->id,
+            ]);
 
         $this->actingAs($this->admin);
 

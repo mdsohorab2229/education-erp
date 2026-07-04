@@ -39,7 +39,10 @@ class ExamController extends Controller
 
     public function store(StoreExamRequest $request): JsonResponse
     {
-        $exam = $this->service->create($request->validated());
+        $data = $request->validated();
+        $data['created_by'] = (int) $request->user()->id;
+        $data['updated_by'] = (int) $request->user()->id;
+        $exam = $this->service->create($data);
 
         return $this->created(
             __('examination.exam_created'),
@@ -63,7 +66,9 @@ class ExamController extends Controller
 
     public function update(UpdateExamRequest $request, int $id): JsonResponse
     {
-        $exam = $this->service->update($id, $request->validated());
+        $data = $request->validated();
+        $data['updated_by'] = (int) $request->user()->id;
+        $exam = $this->service->update($id, $data);
 
         return $this->success(
             __('examination.exam_updated'),

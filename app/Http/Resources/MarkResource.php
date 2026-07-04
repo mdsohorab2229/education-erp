@@ -11,6 +11,8 @@ class MarkResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
+            'exam_subject_id' => $this->exam_subject_id,
             'student' => $this->whenLoaded('student', fn () => [
                 'id' => $this->student->id,
                 'admission_no' => $this->student->admission_no,
@@ -29,6 +31,8 @@ class MarkResource extends JsonResource
                 'gpa_point' => (float) $this->grade->gpa_point,
             ]),
             'approval_status' => $this->approval_status,
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'approved_by' => $this->whenLoaded('approvedBy', fn () => $this->approvedBy ? [
                 'id' => $this->approvedBy->id,
                 'name' => $this->approvedBy->name,

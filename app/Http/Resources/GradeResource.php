@@ -19,6 +19,8 @@ class GradeResource extends JsonResource
             'gpa_point' => (float) $this->gpa_point,
             'remarks' => $this->remarks,
             'status' => $this->status,
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
 }

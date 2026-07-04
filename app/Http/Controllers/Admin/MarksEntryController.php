@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Examination\MarksEntryRequest;
+use App\Http\Requests\Examination\UpdateMarkRequest;
 use App\Http\Resources\ExamSubjectResource;
 use App\Http\Resources\MarkResource;
 use App\Http\Responses\ApiResponse;
@@ -23,18 +24,30 @@ class MarksEntryController extends Controller
     public function index(Request $request): JsonResponse
     {
         $examId = (int) $request->query('exam_id');
-        $marks = $this->service->getExamMarks($examId);
+        $perPage = (int) $request->query('per_page', 50);
+        $marks = $this->service->getExamMarksPaginated($examId, $perPage);
 
         return $this->success(
             __('examination.marks_retrieved'),
             MarkResource::collection($marks),
+            [
+                'current_page' => $marks->currentPage(),
+                'last_page' => $marks->lastPage(),
+                'per_page' => $marks->perPage(),
+                'total' => $marks->total(),
+            ],
         );
     }
 
     public function loadStudents(Request $request): JsonResponse
     {
         $examSubjectId = (int) $request->query('exam_subject_id');
-        $result = $this->service->loadStudents($examSubjectId);
+
+        try {
+            $result = $this->service->loadStudents($examSubjectId);
+        } catch (\RuntimeException $e) {
+            return $this->notFound($e->getMessage());
+        }
 
         return $this->success(
             __('examination.students_loaded'),
@@ -48,29 +61,35 @@ class MarksEntryController extends Controller
     public function bulkStore(MarksEntryRequest $request): JsonResponse
     {
         $data = $request->validated();
+        $userId = (int) $request->user()->id;
 
         $rows = array_map(
-            fn (array $mark): array => array_merge($mark, ['exam_subject_id' => $data['exam_subject_id']]),
+            fn (array $mark): array => array_merge($mark, [
+                'exam_subject_id' => $data['exam_subject_id'],
+                'created_by' => $userId,
+                'updated_by' => $userId,
+            ]),
             $data['marks'],
         );
 
-        $result = $this->service->bulkStore($rows);
+        $marks = $this->service->bulkStore($rows);
 
         return $this->created(
             __('examination.marks_stored'),
-            $result,
+            ['processed' => count($marks)],
         );
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateMarkRequest $request, int $id): JsonResponse
     {
         try {
-            $mark = $this->service->updateMark(
-                $id,
-                $request->only(['obtained_mark', 'practical_mark', 'viva_mark', 'remark']),
-            );
+            $data = $request->validated();
+            $data['updated_by'] = (int) $request->user()->id;
+            $mark = $this->service->updateMark($id, $data);
+        } catch (\App\Exceptions\GradeNotFoundException $e) {
+            return $this->error($e->getMessage(), 422);
         } catch (\RuntimeException $e) {
-            return $this->error($e->getMessage(), 404);
+            return $this->notFound($e->getMessage());
         }
 
         return $this->success(
