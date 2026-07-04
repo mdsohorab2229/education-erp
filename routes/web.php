@@ -16,6 +16,9 @@ use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\RoutineController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\TeacherController;
+use App\Http\Controllers\Admin\ExamController;
+use App\Http\Controllers\Admin\MarksEntryController;
+use App\Http\Controllers\Admin\MarksApprovalController;
 use App\Http\Controllers\AttendanceController;
 use Illuminate\Support\Facades\Route;
 
@@ -400,6 +403,49 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::put('/assignments/{submission}/marks', [AssignmentController::class, 'marks'])
         ->name('assignments.review')
         ->middleware('permission:assignment-review');
+
+    // Exams
+    Route::get('/exams', [ExamController::class, 'index'])
+        ->name('exams.index')
+        ->middleware('permission:exam-list');
+    Route::post('/exams', [ExamController::class, 'store'])
+        ->name('exams.store')
+        ->middleware('permission:exam-create');
+    Route::get('/exams/{exam}', [ExamController::class, 'show'])
+        ->name('exams.show')
+        ->middleware('permission:exam-list');
+    Route::put('/exams/{exam}', [ExamController::class, 'update'])
+        ->name('exams.update')
+        ->middleware('permission:exam-edit');
+    Route::delete('/exams/{exam}', [ExamController::class, 'destroy'])
+        ->name('exams.destroy')
+        ->middleware('permission:exam-delete');
+
+    // Marks Entry
+    Route::get('/marks', [MarksEntryController::class, 'index'])
+        ->name('marks.index')
+        ->middleware('permission:marks-entry');
+    Route::get('/marks/load-students', [MarksEntryController::class, 'loadStudents'])
+        ->name('marks.load-students')
+        ->middleware('permission:marks-entry');
+    Route::post('/marks', [MarksEntryController::class, 'bulkStore'])
+        ->name('marks.store')
+        ->middleware('permission:marks-entry');
+    Route::put('/marks/{mark}', [MarksEntryController::class, 'update'])
+        ->name('marks.update')
+        ->middleware('permission:marks-entry');
+
+    // Marks Approval
+    Route::prefix('marks/approval')->name('marks.approval.')->middleware('permission:marks-approve')->group(function (): void {
+        Route::get('/pending', [MarksApprovalController::class, 'pending'])
+            ->name('pending');
+        Route::post('/{mark}/approve', [MarksApprovalController::class, 'approve'])
+            ->name('approve');
+        Route::post('/{mark}/reject', [MarksApprovalController::class, 'reject'])
+            ->name('reject');
+        Route::post('/{mark}/reset', [MarksApprovalController::class, 'reset'])
+            ->name('reset');
+    });
 });
 
 // Attendance Routes

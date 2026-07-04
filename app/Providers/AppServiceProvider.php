@@ -9,6 +9,11 @@ use App\Interfaces\Repositories\AttendanceRecordRepositoryInterface;
 use App\Interfaces\Repositories\AttendanceSessionRepositoryInterface;
 use App\Interfaces\Repositories\ContentRepositoryInterface;
 use App\Interfaces\Repositories\DepartmentRepositoryInterface;
+use App\Interfaces\Repositories\ExamRepositoryInterface;
+use App\Interfaces\Repositories\ExamSubjectRepositoryInterface;
+use App\Interfaces\Repositories\ExamTypeRepositoryInterface;
+use App\Interfaces\Repositories\GradeRepositoryInterface;
+use App\Interfaces\Repositories\MarkRepositoryInterface;
 use App\Interfaces\Repositories\GroupRepositoryInterface;
 use App\Interfaces\Repositories\GuardianRepositoryInterface;
 use App\Interfaces\Repositories\PermissionRepositoryInterface;
@@ -47,6 +52,11 @@ use App\Repositories\AttendanceRecordRepository;
 use App\Repositories\AttendanceSessionRepository;
 use App\Repositories\ContentRepository;
 use App\Repositories\DepartmentRepository;
+use App\Repositories\ExamRepository;
+use App\Repositories\ExamSubjectRepository;
+use App\Repositories\ExamTypeRepository;
+use App\Repositories\GradeRepository;
+use App\Repositories\MarkRepository;
 use App\Repositories\GroupRepository;
 use App\Repositories\GuardianRepository;
 use App\Repositories\PermissionRepository;
@@ -86,6 +96,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(RoutineRepositoryInterface::class, RoutineRepository::class);
         $this->app->bind(ContentRepositoryInterface::class, ContentRepository::class);
         $this->app->bind(AssignmentRepositoryInterface::class, AssignmentRepository::class);
+        $this->app->bind(ExamTypeRepositoryInterface::class, ExamTypeRepository::class);
+        $this->app->bind(ExamRepositoryInterface::class, ExamRepository::class);
+        $this->app->bind(ExamSubjectRepositoryInterface::class, ExamSubjectRepository::class);
+        $this->app->bind(GradeRepositoryInterface::class, GradeRepository::class);
+        $this->app->bind(MarkRepositoryInterface::class, MarkRepository::class);
     }
 
     public function boot(): void

@@ -27,6 +27,8 @@ class DatabaseSeeder extends Seeder
             AssignmentDemoSeeder::class,
             AttendanceDemoSeeder::class,
             RoutineDemoSeeder::class,
+            ExamDemoSeeder::class,
+            ExamTestSeeder::class,
         ]);
     }
 }
