@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace App\Http\Requests\Examination;
 
 use App\Rules\MarkNotExceedFullMark;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\ValidationResponseException;
 
 class MarksEntryRequest extends FormRequest
 {
@@ -50,5 +52,21 @@ class MarksEntryRequest extends FormRequest
             'marks.*.viva_mark.numeric' => 'The viva mark must be a number.',
             'marks.*.viva_mark.min' => 'The viva mark cannot be negative.',
         ];
+    }
+
+    protected function failedValidation(Validator $validator): void
+    {
+        if ($this->expectsJson()) {
+            parent::failedValidation($validator);
+
+            return;
+        }
+
+        throw new ValidationResponseException(
+            $validator,
+            redirect()->route('admin.marks.index', ['exam_subject_id' => $this->input('exam_subject_id')])
+                ->withErrors($validator)
+                ->withInput(),
+        );
     }
 }

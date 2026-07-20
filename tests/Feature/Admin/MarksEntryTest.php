@@ -149,13 +149,11 @@ class MarksEntryTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $response = $this->getJson(route('admin.marks.index', ['exam_id' => $this->exam->id]));
+        $response = $this->get(route('admin.marks.index'));
 
         $response->assertStatus(200);
-        $response->assertJsonPath('success', true);
-        $response->assertJsonStructure([
-            'success', 'message', 'data', 'meta' => ['current_page', 'last_page', 'per_page', 'total'],
-        ]);
+        $response->assertSee('Marks Entry');
+        $response->assertSee('Load Students');
     }
 
     public function test_admin_can_bulk_store_marks(): void
@@ -275,5 +273,82 @@ class MarksEntryTest extends TestCase
 
         $response->assertStatus(404);
         $response->assertJsonPath('success', false);
+    }
+
+    public function test_admin_can_load_students_via_index_page(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->get(route('admin.marks.index', [
+            'exam_subject_id' => $this->examSubject->id,
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertSee('Marks Entry');
+        $response->assertSee($this->examSubject->subject->name);
+    }
+
+    public function test_index_page_shows_empty_state_without_exam_subject(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->get(route('admin.marks.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Select an exam subject and click Load Students');
+        $response->assertSee('Load Students');
+    }
+
+    public function test_marks_form_submits_correctly(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->post(route('admin.marks.store'), [
+            'exam_subject_id' => $this->examSubject->id,
+            'marks' => [
+                [
+                    'student_id' => $this->student->id,
+                    'obtained_mark' => 60.00,
+                    'practical_mark' => 15.00,
+                    'viva_mark' => 10.00,
+                ],
+            ],
+        ]);
+
+        $response->assertRedirect();
+        $response->assertRedirect(route('admin.marks.index', ['exam_subject_id' => $this->examSubject->id]));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('marks', [
+            'exam_subject_id' => $this->examSubject->id,
+            'student_id' => $this->student->id,
+            'obtained_mark' => 60.00,
+        ]);
+    }
+
+    public function test_marks_api_store_returns_json(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->postJson(route('admin.marks.store'), [
+            'exam_subject_id' => $this->examSubject->id,
+            'marks' => [
+                [
+                    'student_id' => $this->student->id,
+                    'obtained_mark' => 60.00,
+                    'practical_mark' => 15.00,
+                    'viva_mark' => 10.00,
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonPath('success', true);
+
+        $this->assertDatabaseHas('marks', [
+            'exam_subject_id' => $this->examSubject->id,
+            'student_id' => $this->student->id,
+            'obtained_mark' => 60.00,
+        ]);
     }
 }

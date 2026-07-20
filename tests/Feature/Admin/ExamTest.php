@@ -172,7 +172,7 @@ class ExamTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $response = $this->getJson(route('admin.exams.index'));
+        $response = $this->getJson(route('admin.exams.search'));
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
@@ -367,7 +367,7 @@ class ExamTest extends TestCase
 
         $this->actingAs($this->admin);
 
-        $response = $this->getJson(route('admin.exams.index', ['per_page' => 10]));
+        $response = $this->getJson(route('admin.exams.search', ['per_page' => 10]));
 
         $response->assertStatus(200);
         $response->assertJsonPath('meta.per_page', 10);
