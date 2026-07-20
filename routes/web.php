@@ -464,6 +464,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::get('/contents/by-teacher', [ContentController::class, 'byTeacher'])
         ->name('contents.by-teacher')
         ->middleware('permission:content-list');
+    Route::get('/contents/search', [ContentController::class, 'search'])
+        ->name('contents.search')
+        ->middleware('permission:content-list');
+    Route::get('/contents/export', [ContentController::class, 'export'])
+        ->name('contents.export')
+        ->middleware('permission:content-list');
+    Route::get('/contents/print', [ContentController::class, 'print'])
+        ->name('contents.print')
+        ->middleware('permission:content-list');
     Route::get('/contents', [ContentController::class, 'index'])
         ->name('contents.index')
         ->middleware('permission:content-list');
@@ -488,15 +497,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::post('/contents/{content}/comments', [ContentController::class, 'addComment'])
         ->name('contents.comments.store')
         ->middleware('permission:content-comment');
-    Route::get('/contents/search', [ContentController::class, 'search'])
-        ->name('contents.search')
-        ->middleware('permission:content-list');
-    Route::get('/contents/export', [ContentController::class, 'export'])
-        ->name('contents.export')
-        ->middleware('permission:content-list');
-    Route::get('/contents/print', [ContentController::class, 'print'])
-        ->name('contents.print')
-        ->middleware('permission:content-list');
 
     // Assignments
     Route::get('/assignments/by-section', [AssignmentController::class, 'bySection'])
@@ -511,6 +511,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::post('/assignments/submit', [AssignmentController::class, 'submit'])
         ->name('assignments.submit')
         ->middleware('permission:assignment-submit');
+    Route::get('/assignments/search', [AssignmentController::class, 'search'])
+        ->name('assignments.search')
+        ->middleware('permission:assignment-list');
+    Route::get('/assignments/export', [AssignmentController::class, 'export'])
+        ->name('assignments.export')
+        ->middleware('permission:assignment-list');
+    Route::get('/assignments/print', [AssignmentController::class, 'print'])
+        ->name('assignments.print')
+        ->middleware('permission:assignment-list');
     Route::get('/assignments', [AssignmentController::class, 'index'])
         ->name('assignments.index')
         ->middleware('permission:assignment-list');
@@ -529,15 +538,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function ():
     Route::put('/assignments/{submission}/marks', [AssignmentController::class, 'marks'])
         ->name('assignments.review')
         ->middleware('permission:assignment-review');
-    Route::get('/assignments/search', [AssignmentController::class, 'search'])
-        ->name('assignments.search')
-        ->middleware('permission:assignment-list');
-    Route::get('/assignments/export', [AssignmentController::class, 'export'])
-        ->name('assignments.export')
-        ->middleware('permission:assignment-list');
-    Route::get('/assignments/print', [AssignmentController::class, 'print'])
-        ->name('assignments.print')
-        ->middleware('permission:assignment-list');
 
     // Exams
     Route::get('/exams', [ExamController::class, 'index'])

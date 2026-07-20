@@ -27,6 +27,8 @@ class Routine extends Model
         'start_time',
         'end_time',
         'status',
+        'created_by',
+        'updated_by',
     ];
 
     protected function casts(): array
@@ -85,5 +87,15 @@ class Routine extends Model
     public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

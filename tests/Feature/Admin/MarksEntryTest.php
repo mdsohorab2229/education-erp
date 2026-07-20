@@ -217,6 +217,8 @@ class MarksEntryTest extends TestCase
             'exam_subject_id' => $this->examSubject->id,
             'student_id' => $this->student->id,
             'grade_id' => Grade::first()->id,
+            'practical_mark' => null,
+            'viva_mark' => null,
             'total_mark' => 50,
             'created_by' => $this->admin->id,
             'updated_by' => $this->admin->id,

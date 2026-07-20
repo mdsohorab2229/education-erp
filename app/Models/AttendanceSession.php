@@ -95,4 +95,14 @@ class AttendanceSession extends Model
     {
         return $this->hasMany(AttendanceRecord::class);
     }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 }

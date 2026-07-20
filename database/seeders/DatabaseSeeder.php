@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             GroupSeeder::class,
             StudentSeeder::class,
             TeacherSeeder::class,
-            ContentDemoSeeder::class,
+            GradeSeeder::class,
             ContentDemoSeeder::class,
             AssignmentDemoSeeder::class,
             AttendanceDemoSeeder::class,
